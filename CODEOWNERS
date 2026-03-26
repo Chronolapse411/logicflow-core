@@ -1,0 +1,13 @@
+# Owners for critical LogicFlow paths
+# All changes to these paths require owner review
+
+# Sovereign update + licensing infrastructure
+/src/LogicFlow.Licensing/        @Chronolapse411
+/src/LogicFlow.Commerce/         @Chronolapse411
+
+# Guardian + Native system components
+/src/LogicFlow.Guardian/         @Chronolapse411
+/src/LogicFlow.Native/           @Chronolapse411
+
+# CI pipeline
+/.github/workflows/              @Chronolapse411

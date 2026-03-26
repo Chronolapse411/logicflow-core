@@ -1,0 +1,618 @@
+<Window x:Class="LogicFlow.Dashboard.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="LogicFlow — AI-Powered Windows Optimization" 
+    Height="800" Width="1280" MinWidth="1024" MinHeight="700"
+    WindowStartupLocation="CenterScreen" WindowStyle="None"
+    Icon="pack://application:,,,/Assets/AppIcon.jpg"
+    Background="{StaticResource BrandDarkBrush}" AllowsTransparency="True">
+    
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="40" ResizeBorderThickness="6" GlassFrameThickness="0"/>
+    </WindowChrome.WindowChrome>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="260"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- ═══ Sidebar Navigation ═══ -->
+        <Border Grid.Column="0" Background="#0D1117" BorderBrush="#1E293B" BorderThickness="0,0,1,0">
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Top" Margin="20,24,20,32">
+                    <TextBlock Text="⚡ LOGICFLOW" FontSize="22" FontWeight="ExtraBold"
+                               Foreground="{StaticResource BrandCyanBrush}" Margin="0,0,0,4"/>
+                    <TextBlock Text="DelgadoLogic.Tech" FontSize="11" 
+                               Foreground="{StaticResource TextSecondaryBrush}"/>
+                    <Border Height="2" Margin="0,16,0,0" CornerRadius="1">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                <GradientStop Color="#00E5FF" Offset="0"/>
+                                <GradientStop Color="#7C4DFF" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
+                    </Border>
+                </StackPanel>
+
+                <Border DockPanel.Dock="Bottom" Margin="16,0,16,16" Padding="12" CornerRadius="10" Background="#111827">
+                    <StackPanel>
+                        <TextBlock x:Name="LicenseLabel" Text="🆓 FREE TIER" FontSize="12" FontWeight="Bold"
+                                   Foreground="{StaticResource WarningAmberBrush}"/>
+                        <TextBlock x:Name="TrialLabel" Text="14-day Pro trial available" FontSize="10"
+                                   Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,8"/>
+                        <Button Content="🚀 UPGRADE TO PRO — $9.99/mo" Style="{StaticResource ActionButton}" 
+                                FontSize="11" Click="OnUpgradeClick"/>
+                    </StackPanel>
+                </Border>
+
+                <StackPanel Margin="12,0">
+                    <TextBlock Text="MODULES" FontSize="10" FontWeight="Bold" Margin="8,0,0,8"
+                               Foreground="{StaticResource TextSecondaryBrush}"/>
+                    <Button x:Name="NavDashboard" Content="🏠  Dashboard" Style="{StaticResource NavButton}" Click="OnNavDashboard"/>
+                    <Button x:Name="NavSentinel" Content="🛡  Sentinel — Security" Style="{StaticResource NavButton}" Click="OnNavSentinel"/>
+                    <Button x:Name="NavGuardian" Content="⚡  Guardian — Performance" Style="{StaticResource NavButton}" Click="OnNavGuardian"/>
+                    <Button x:Name="NavToolbox" Content="🧰  Toolbox — Utilities" Style="{StaticResource NavButton}" Click="OnNavToolbox"/>
+                    <Button x:Name="NavLazarus" Content="🔄  Lazarus — Recovery" Style="{StaticResource NavButton}" Click="OnNavLazarus"/>
+                    <Button x:Name="NavRegistry" Content="🔧  Registry Surgeon" Style="{StaticResource NavButton}" Click="OnNavRegistry"/>
+                    
+                    <TextBlock Text="SYSTEM" FontSize="10" FontWeight="Bold" Margin="8,24,0,8"
+                               Foreground="{StaticResource TextSecondaryBrush}"/>
+                    <Button x:Name="NavSettings" Content="⚙  Settings" Style="{StaticResource NavButton}" Click="OnNavSettings"/>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <!-- ═══ Main Content Area ═══ -->
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Title Bar -->
+            <Border Grid.Row="0" Background="#0D1117" Padding="20,0">
+                <DockPanel>
+                    <TextBlock x:Name="PageTitle" Text="System Dashboard" FontSize="16" FontWeight="Bold"
+                               Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center"
+                                WindowChrome.IsHitTestVisibleInChrome="True">
+                        <Button Content="─" Width="40" Height="30" Click="OnMinimize"
+                                Background="Transparent" Foreground="Gray" BorderThickness="0" FontSize="14"/>
+                        <Button Content="□" Width="40" Height="30" Click="OnMaximize"
+                                Background="Transparent" Foreground="Gray" BorderThickness="0" FontSize="14"/>
+                        <Button Content="✕" Width="40" Height="30" Click="OnClose"
+                                Background="Transparent" Foreground="Gray" BorderThickness="0" FontSize="14"/>
+                    </StackPanel>
+                </DockPanel>
+            </Border>
+
+            <!-- ═══ Page Panels (swap visibility) ═══ -->
+            <Grid Grid.Row="1">
+
+                <!-- ──── Dashboard Page ──── -->
+                <ScrollViewer x:Name="PageDashboard" VerticalScrollBarVisibility="Auto" Padding="24">
+                    <StackPanel>
+                        <!-- Score Cards — CLICKABLE → navigate to module -->
+                        <!-- Score Cards Row 1 -->
+                        <UniformGrid Columns="4" Margin="0,0,0,12">
+                            <Border Style="{StaticResource GlassPanel}" Margin="0,0,12,0" Cursor="Hand" MouseLeftButtonDown="OnClickSecurityCard">
+                                <StackPanel>
+                                    <TextBlock Text="SECURITY SCORE" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    <TextBlock x:Name="SecurityScore" Text="—" FontSize="36" FontWeight="ExtraBold" Foreground="{StaticResource SuccessGreenBrush}" Margin="0,8,0,0"/>
+                                    <TextBlock x:Name="SecuritySub" Text="🛡 Click to scan" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Style="{StaticResource GlassPanel}" Margin="6,0" Cursor="Hand" MouseLeftButtonDown="OnClickPerfCard">
+                                <StackPanel>
+                                    <TextBlock Text="PERFORMANCE" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    <TextBlock x:Name="PerfScore" Text="—" FontSize="36" FontWeight="ExtraBold" Foreground="{StaticResource BrandCyanBrush}" Margin="0,8,0,0"/>
+                                    <TextBlock x:Name="PerfSub" Text="⚡ Click to scan" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Style="{StaticResource GlassPanel}" Margin="6,0" Cursor="Hand" MouseLeftButtonDown="OnClickRegCard">
+                                <StackPanel>
+                                    <TextBlock Text="REGISTRY HEALTH" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    <TextBlock x:Name="RegScore" Text="—" FontSize="36" FontWeight="ExtraBold" Foreground="{StaticResource BrandPurpleBrush}" Margin="0,8,0,0"/>
+                                    <TextBlock x:Name="RegSub" Text="🔧 Click to scan" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Style="{StaticResource GlassPanel}" Margin="12,0,0,0" Cursor="Hand" MouseLeftButtonDown="OnClickRecoveryCard">
+                                <StackPanel>
+                                    <TextBlock Text="RECOVERY READY" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    <TextBlock x:Name="RecoveryStatus" Text="—" FontSize="36" FontWeight="ExtraBold" Foreground="{StaticResource SuccessGreenBrush}" Margin="0,8,0,0"/>
+                                    <TextBlock x:Name="RecoverySub" Text="🔄 Awaiting scan" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                </StackPanel>
+                            </Border>
+                        </UniformGrid>
+
+                        <!-- Score Cards Row 2 — New engines -->
+                        <UniformGrid Columns="4" Margin="0,0,0,20">
+                            <Border Style="{StaticResource GlassPanel}" Margin="0,0,12,0">
+                                <StackPanel>
+                                    <TextBlock Text="HEALTH SCORE" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    <TextBlock x:Name="HealthScoreLabel" Text="—" FontSize="36" FontWeight="ExtraBold" Foreground="{StaticResource BrandCyanBrush}" Margin="0,8,0,0"/>
+                                    <TextBlock x:Name="HealthScoreSub" Text="🏥 Run 1-Click to calculate" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Style="{StaticResource GlassPanel}" Margin="6,0">
+                                <StackPanel>
+                                    <TextBlock Text="DISK HEALTH" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    <TextBlock x:Name="DiskHealthLabel" Text="—" FontSize="36" FontWeight="ExtraBold" Foreground="{StaticResource SuccessGreenBrush}" Margin="0,8,0,0"/>
+                                    <TextBlock x:Name="DiskHealthSub" Text="💾 S.M.A.R.T. status" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Style="{StaticResource GlassPanel}" Margin="6,0">
+                                <StackPanel>
+                                    <TextBlock Text="MEMORY" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    <TextBlock x:Name="MemoryLabel" Text="—" FontSize="36" FontWeight="ExtraBold" Foreground="{StaticResource BrandPurpleBrush}" Margin="0,8,0,0"/>
+                                    <TextBlock x:Name="MemorySub" Text="🧠 RAM usage" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Style="{StaticResource GlassPanel}" Margin="12,0,0,0">
+                                <StackPanel>
+                                    <TextBlock Text="TURBO MODE" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    <TextBlock x:Name="TurboStatusLabel" Text="OFF" FontSize="36" FontWeight="ExtraBold" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,8,0,0"/>
+                                    <TextBlock x:Name="TurboSub" Text="🚀 Click to activate" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                </StackPanel>
+                            </Border>
+                        </UniformGrid>
+
+                        <Border Style="{StaticResource GlassPanel}" Margin="0,0,0,20">
+                            <StackPanel>
+                                <TextBlock Text="SYSTEM PROFILE" FontSize="14" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,16"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/><ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/><ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="CPU" FontSize="10" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                        <TextBlock x:Name="CpuLabel" Text="Loading..." FontSize="12" Foreground="{StaticResource TextPrimaryBrush}" TextTrimming="CharacterEllipsis"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1">
+                                        <TextBlock Text="RAM" FontSize="10" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                        <TextBlock x:Name="RamLabel" Text="Loading..." FontSize="12" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="GPU" FontSize="10" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                        <TextBlock x:Name="GpuLabel" Text="Loading..." FontSize="12" Foreground="{StaticResource TextPrimaryBrush}" TextTrimming="CharacterEllipsis"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="3">
+                                        <TextBlock Text="OS" FontSize="10" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                        <TextBlock x:Name="OsLabel" Text="Loading..." FontSize="12" Foreground="{StaticResource TextPrimaryBrush}" TextTrimming="CharacterEllipsis"/>
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource GlassPanel}">
+                            <StackPanel>
+                                <TextBlock Text="QUICK ACTIONS" FontSize="14" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,16"/>
+                                <WrapPanel>
+                                    <Button Content="🎯 1-Click Optimize" Style="{StaticResource ActionButton}" Margin="0,0,12,8" Click="OnOneClickOptimize" Background="#00C853" FontWeight="Bold"/>
+                                    <Button Content="🛡 Full Security Scan" Style="{StaticResource ActionButton}" Margin="0,0,12,8" Click="OnQuickSecurityScan"/>
+                                    <Button Content="⚡ Optimize Performance" Style="{StaticResource ActionButton}" Margin="0,0,12,8" Click="OnQuickPerfScan"/>
+                                    <Button Content="🧹 Clean Junk Files" Style="{StaticResource ActionButton}" Margin="0,0,12,8" Click="OnQuickJunkClean"/>
+                                    <Button Content="🧠 Optimize Memory" Style="{StaticResource ActionButton}" Margin="0,0,12,8" Click="OnQuickMemoryOptimize"/>
+                                    <Button Content="🔧 Fix Registry" Style="{StaticResource ActionButton}" Margin="0,0,12,8" Click="OnQuickRegistryScan"/>
+                                    <Button Content="🚀 Turbo Mode" Style="{StaticResource ActionButton}" Margin="0,0,12,8" Click="OnToggleTurbo" Background="#FF6F00"/>
+                                    <Button Content="📊 Run All Scans" Style="{StaticResource ActionButton}" Margin="0,0,12,8" Click="OnRunAllScans"/>
+                                </WrapPanel>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- ──── Sentinel Page ──── -->
+                <ScrollViewer x:Name="PageSentinel" VerticalScrollBarVisibility="Auto" Padding="24" Visibility="Collapsed">
+                    <StackPanel>
+                        <Border Style="{StaticResource GlassPanel}" Margin="0,0,0,20">
+                            <StackPanel>
+                                <DockPanel Margin="0,0,0,12">
+                                    <TextBlock Text="VULNERABILITY SCANNER" FontSize="14" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                                        <Button Content="🛡 Run Scan" Style="{StaticResource ActionButton}" Click="OnSentinelScan" Margin="0,0,8,0"/>
+                                        <Button x:Name="BtnFixVulns" Content="🔧 Fix All" Style="{StaticResource ActionButton}" Click="OnFixVulnerabilities" 
+                                                Visibility="Collapsed" Background="#E53935" Margin="0,0,8,0"/>
+                                    </StackPanel>
+                                </DockPanel>
+                                <TextBlock x:Name="SentinelStatus" Text="Click 'Run Scan' to check for vulnerabilities..." FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                <!-- Summary bar -->
+                                <Border x:Name="VulnSummaryBar" Background="#1A1F2E" CornerRadius="8" Padding="12,8" Margin="0,12,0,0" Visibility="Collapsed">
+                                    <DockPanel>
+                                        <TextBlock x:Name="VulnSummaryText" Text="" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                                        <Button x:Name="BtnToggleVulnDetails" DockPanel.Dock="Right" Content="▼ Show Details" Click="OnToggleVulnDetails"
+                                                Background="Transparent" Foreground="{StaticResource BrandCyanBrush}" BorderThickness="0" FontSize="11" Cursor="Hand"/>
+                                    </DockPanel>
+                                </Border>
+                                <ItemsControl x:Name="VulnList" Margin="0,8,0,0" Visibility="Collapsed"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource GlassPanel}" Margin="0,0,0,20">
+                            <StackPanel>
+                                <DockPanel Margin="0,0,0,12">
+                                    <TextBlock Text="EXPOSED SERVICES" FontSize="14" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                    <Button x:Name="BtnDisableServices" DockPanel.Dock="Right" Content="🔒 Disable Risky" Style="{StaticResource ActionButton}" 
+                                            Click="OnDisableExposedServices" Visibility="Collapsed" Background="#FF6F00"/>
+                                </DockPanel>
+                                <Border x:Name="ServiceSummaryBar" Background="#1A1F2E" CornerRadius="8" Padding="12,8" Visibility="Collapsed">
+                                    <DockPanel>
+                                        <TextBlock x:Name="ServiceSummaryText" Text="" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                                        <Button x:Name="BtnToggleServiceDetails" DockPanel.Dock="Right" Content="▼ Show Details" Click="OnToggleServiceDetails"
+                                                Background="Transparent" Foreground="{StaticResource BrandCyanBrush}" BorderThickness="0" FontSize="11" Cursor="Hand"/>
+                                    </DockPanel>
+                                </Border>
+                                <ItemsControl x:Name="ServiceList" Margin="0,8,0,0" Visibility="Collapsed"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource GlassPanel}">
+                            <StackPanel>
+                                <DockPanel Margin="0,0,0,12">
+                                    <TextBlock Text="PRIVACY SCRUBBER" FontSize="14" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                                        <Button Content="🧹 Quick Scrub" Style="{StaticResource ActionButton}" Click="OnPrivacyScrub" Margin="0,0,8,0"/>
+                                        <Button Content="🧹 Deep Scrub" Style="{StaticResource ActionButton}" Click="OnDeepPrivacyScrub" Background="#7C4DFF"/>
+                                    </StackPanel>
+                                </DockPanel>
+                                <TextBlock x:Name="ScrubStatus" Text="Remove caches, temp files, and telemetry artifacts" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                <Border x:Name="ScrubSummaryBar" Background="#1A1F2E" CornerRadius="8" Padding="12,8" Margin="0,12,0,0" Visibility="Collapsed">
+                                    <TextBlock x:Name="ScrubSummaryText" Text="" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource SuccessGreenBrush}"/>
+                                </Border>
+                                <ItemsControl x:Name="ScrubList" Margin="0,8,0,0" Visibility="Collapsed"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- ──── Guardian Page ──── -->
+                <ScrollViewer x:Name="PageGuardian" VerticalScrollBarVisibility="Auto" Padding="24" Visibility="Collapsed">
+                    <StackPanel>
+                        <!-- Driver Health -->
+                        <Border Style="{StaticResource GlassPanel}" Margin="0,0,0,20">
+                            <StackPanel>
+                                <DockPanel Margin="0,0,0,12">
+                                    <TextBlock Text="DRIVER HEALTH" FontSize="14" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                                        <Button Content="⚡ Scan Drivers" Style="{StaticResource ActionButton}" Click="OnDriverScan" Margin="0,0,8,0"/>
+                                        <Button x:Name="BtnUpdateDrivers" Content="🔄 Update All" Style="{StaticResource ActionButton}" Click="OnUpdateAllDrivers"
+                                                Visibility="Collapsed" Background="#FF6F00"/>
+                                    </StackPanel>
+                                </DockPanel>
+                                <TextBlock x:Name="DriverStatusLabel" Text="Click scan to evaluate driver health..." FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                <!-- Summary bar with counts -->
+                                <Border x:Name="DriverSummaryBar" Background="#1A1F2E" CornerRadius="8" Padding="12,8" Margin="0,12,0,0" Visibility="Collapsed">
+                                    <DockPanel>
+                                        <TextBlock x:Name="DriverSummaryText" Text="" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                                        <Button x:Name="BtnToggleDriverDetails" DockPanel.Dock="Right" Content="▼ Show Details" Click="OnToggleDriverDetails"
+                                                Background="Transparent" Foreground="{StaticResource BrandCyanBrush}" BorderThickness="0" FontSize="11" Cursor="Hand"/>
+                                    </DockPanel>
+                                </Border>
+                                <ItemsControl x:Name="DriverList" Margin="0,8,0,0" Visibility="Collapsed"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Bloatware Scanner -->
+                        <Border Style="{StaticResource GlassPanel}" Margin="0,0,0,20">
+                            <StackPanel>
+                                <DockPanel Margin="0,0,0,12">
+                                    <TextBlock Text="BLOATWARE SCANNER" FontSize="14" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                                        <Button Content="🗑 Scan Bloatware" Style="{StaticResource ActionButton}" Click="OnBloatwareScan" Margin="0,0,8,0"/>
+                                        <Button x:Name="BtnRemoveBloat" Content="🗑 Remove All" Style="{StaticResource ActionButton}" Click="OnRemoveAllBloatware"
+                                                Visibility="Collapsed" Background="#E53935"/>
+                                    </StackPanel>
+                                </DockPanel>
+                                <TextBlock x:Name="BloatStatus" Text="Detect pre-installed bloatware packages..." FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                <Border x:Name="BloatSummaryBar" Background="#1A1F2E" CornerRadius="8" Padding="12,8" Margin="0,12,0,0" Visibility="Collapsed">
+                                    <DockPanel>
+                                        <TextBlock x:Name="BloatSummaryText" Text="" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                                        <Button x:Name="BtnToggleBloatDetails" DockPanel.Dock="Right" Content="▼ Show Details" Click="OnToggleBloatDetails"
+                                                Background="Transparent" Foreground="{StaticResource BrandCyanBrush}" BorderThickness="0" FontSize="11" Cursor="Hand"/>
+                                    </DockPanel>
+                                </Border>
+                                <ItemsControl x:Name="BloatList" Margin="0,8,0,0" Visibility="Collapsed"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Startup Optimizer -->
+                        <Border Style="{StaticResource GlassPanel}" Margin="0,0,0,20">
+                            <StackPanel>
+                                <DockPanel Margin="0,0,0,12">
+                                    <TextBlock Text="STARTUP OPTIMIZER" FontSize="14" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                                        <Button Content="🚀 Analyze Startup" Style="{StaticResource ActionButton}" Click="OnStartupScan" Margin="0,0,8,0"/>
+                                        <Button x:Name="BtnDisableStartup" Content="⚡ Disable High-Impact" Style="{StaticResource ActionButton}" Click="OnDisableHighImpactStartup"
+                                                Visibility="Collapsed" Background="#FF6F00"/>
+                                    </StackPanel>
+                                </DockPanel>
+                                <TextBlock x:Name="StartupStatus" Text="Evaluate startup items by impact score..." FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                <Border x:Name="StartupSummaryBar" Background="#1A1F2E" CornerRadius="8" Padding="12,8" Margin="0,12,0,0" Visibility="Collapsed">
+                                    <DockPanel>
+                                        <TextBlock x:Name="StartupSummaryText" Text="" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                                        <Button x:Name="BtnToggleStartupDetails" DockPanel.Dock="Right" Content="▼ Show Details" Click="OnToggleStartupDetails"
+                                                Background="Transparent" Foreground="{StaticResource BrandCyanBrush}" BorderThickness="0" FontSize="11" Cursor="Hand"/>
+                                    </DockPanel>
+                                </Border>
+                                <ItemsControl x:Name="StartupList" Margin="0,8,0,0" Visibility="Collapsed"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- SMART Disk Health -->
+                        <Border Style="{StaticResource GlassPanel}" Margin="0,0,0,20">
+                            <StackPanel>
+                                <DockPanel Margin="0,0,0,12">
+                                    <TextBlock Text="S.M.A.R.T. DISK HEALTH" FontSize="14" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                    <Button DockPanel.Dock="Right" Content="💾 Scan Drives" Style="{StaticResource ActionButton}" Click="OnSmartDiskScan"/>
+                                </DockPanel>
+                                <TextBlock x:Name="SmartDiskStatus" Text="Read S.M.A.R.T. attributes from all drives..." FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                <Border x:Name="SmartDiskSummaryBar" Background="#1A1F2E" CornerRadius="8" Padding="12,8" Margin="0,12,0,0" Visibility="Collapsed">
+                                    <TextBlock x:Name="SmartDiskSummaryText" Text="" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                </Border>
+                                <ItemsControl x:Name="SmartDiskList" Margin="0,8,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Windows Tweaks -->
+                        <Border Style="{StaticResource GlassPanel}">
+                            <StackPanel>
+                                <DockPanel Margin="0,0,0,12">
+                                    <TextBlock Text="WINDOWS OPTIMIZATIONS" FontSize="14" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                                        <Button Content="🔍 Scan Tweaks" Style="{StaticResource ActionButton}" Click="OnTweakScan" Margin="0,0,8,0"/>
+                                        <Button x:Name="BtnApplyTweaks" Content="⚡ Apply All Safe" Style="{StaticResource ActionButton}" Click="OnApplyAllSafeTweaks"
+                                                Visibility="Collapsed" Background="#00C853"/>
+                                    </StackPanel>
+                                </DockPanel>
+                                <TextBlock x:Name="TweakStatus" Text="30+ safe Windows optimizations for Privacy, Performance, Gaming, Network..." FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                <Border x:Name="TweakSummaryBar" Background="#1A1F2E" CornerRadius="8" Padding="12,8" Margin="0,12,0,0" Visibility="Collapsed">
+                                    <TextBlock x:Name="TweakSummaryText" Text="" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                </Border>
+                                <ItemsControl x:Name="TweakList" Margin="0,8,0,0"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- ──── Lazarus Page ──── -->
+                <ScrollViewer x:Name="PageLazarus" VerticalScrollBarVisibility="Auto" Padding="24" Visibility="Collapsed">
+                    <StackPanel>
+                        <Border Style="{StaticResource GlassPanel}" Margin="0,0,0,20">
+                            <StackPanel>
+                                <TextBlock Text="DATA RECOVERY ENGINE" FontSize="14" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,8"/>
+                                <TextBlock Text="⚠ Deep-sector scanning requires Administrator privileges." FontSize="12" Foreground="{StaticResource WarningAmberBrush}" Margin="0,0,0,16"/>
+                                <TextBlock Text="DETECTED DRIVES" FontSize="11" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,8"/>
+                                <ItemsControl x:Name="DriveList"/>
+                                <Button Content="🔄 Refresh Drives" Style="{StaticResource ActionButton}" Margin="0,16,0,0" Click="OnRefreshDrives" HorizontalAlignment="Left"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource GlassPanel}">
+                            <StackPanel>
+                                <TextBlock Text="MTP DEVICES (Mobile)" FontSize="14" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,8"/>
+                                <TextBlock x:Name="MtpStatus" Text="Scanning for connected mobile devices..." FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                <ItemsControl x:Name="MtpList" Margin="0,12,0,0"/>
+                                <Button Content="📱 Scan MTP Devices" Style="{StaticResource ActionButton}" Margin="0,16,0,0" Click="OnScanMtp" HorizontalAlignment="Left"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- ──── Registry Page ──── -->
+                <ScrollViewer x:Name="PageRegistry" VerticalScrollBarVisibility="Auto" Padding="24" Visibility="Collapsed">
+                    <StackPanel>
+                        <Border Style="{StaticResource GlassPanel}" Margin="0,0,0,20">
+                            <StackPanel>
+                                <DockPanel Margin="0,0,0,12">
+                                    <TextBlock Text="REGISTRY HEALTH SCAN" FontSize="14" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                                        <Button Content="🔧 Scan Registry" Style="{StaticResource ActionButton}" Click="OnRegistryScan" Margin="0,0,8,0"/>
+                                        <Button x:Name="BtnFixRegistrySafe" Content="✅ Fix Safe Issues" Style="{StaticResource ActionButton}" Click="OnFixRegistrySafe"
+                                                Visibility="Collapsed" Background="#43A047" Margin="0,0,8,0"/>
+                                        <Button x:Name="BtnFixRegistryAll" Content="🔧 Fix All" Style="{StaticResource ActionButton}" Click="OnFixRegistryAll"
+                                                Visibility="Collapsed" Background="#E53935"/>
+                                    </StackPanel>
+                                </DockPanel>
+                                <TextBlock x:Name="RegistryStatus" Text="Full registry integrity analysis..." FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                <!-- Summary counts bar -->
+                                <Border x:Name="RegSummaryBar" Background="#1A1F2E" CornerRadius="8" Padding="12,8" Margin="0,12,0,0" Visibility="Collapsed">
+                                    <TextBlock x:Name="RegSummaryText" Text="" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                </Border>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Collapsible sub-sections with count badges -->
+                        <Border Style="{StaticResource GlassPanel}" Margin="0,0,0,20">
+                            <StackPanel>
+                                <DockPanel Margin="0,0,0,8">
+                                    <TextBlock x:Name="OrphanHeader" Text="ORPHANED SOFTWARE KEYS (0)" FontSize="12" FontWeight="Bold" Foreground="{StaticResource WarningAmberBrush}"/>
+                                    <Button x:Name="BtnToggleOrphans" DockPanel.Dock="Right" Content="▼ Show" Click="OnToggleOrphans"
+                                            Background="Transparent" Foreground="{StaticResource BrandCyanBrush}" BorderThickness="0" FontSize="11" Cursor="Hand"/>
+                                </DockPanel>
+                                <ItemsControl x:Name="OrphanList" Visibility="Collapsed"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource GlassPanel}" Margin="0,0,0,20">
+                            <StackPanel>
+                                <DockPanel Margin="0,0,0,8">
+                                    <TextBlock x:Name="BrokenAssocHeader" Text="BROKEN FILE ASSOCIATIONS (0)" FontSize="12" FontWeight="Bold" Foreground="{StaticResource WarningAmberBrush}"/>
+                                    <Button x:Name="BtnToggleBrokenAssoc" DockPanel.Dock="Right" Content="▼ Show" Click="OnToggleBrokenAssoc"
+                                            Background="Transparent" Foreground="{StaticResource BrandCyanBrush}" BorderThickness="0" FontSize="11" Cursor="Hand"/>
+                                </DockPanel>
+                                <ItemsControl x:Name="BrokenAssocList" Visibility="Collapsed"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource GlassPanel}" Margin="0,0,0,20">
+                            <StackPanel>
+                                <DockPanel Margin="0,0,0,8">
+                                    <TextBlock x:Name="InvalidPathHeader" Text="INVALID PATHS (0)" FontSize="12" FontWeight="Bold" Foreground="{StaticResource DangerRedBrush}"/>
+                                    <Button x:Name="BtnToggleInvalidPaths" DockPanel.Dock="Right" Content="▼ Show" Click="OnToggleInvalidPaths"
+                                            Background="Transparent" Foreground="{StaticResource BrandCyanBrush}" BorderThickness="0" FontSize="11" Cursor="Hand"/>
+                                </DockPanel>
+                                <ItemsControl x:Name="InvalidPathList" Visibility="Collapsed"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource GlassPanel}">
+                            <StackPanel>
+                                <DockPanel Margin="0,0,0,8">
+                                    <TextBlock x:Name="ObsoleteRunHeader" Text="OBSOLETE STARTUP ENTRIES (0)" FontSize="12" FontWeight="Bold" Foreground="{StaticResource DangerRedBrush}"/>
+                                    <Button x:Name="BtnToggleObsoleteRun" DockPanel.Dock="Right" Content="▼ Show" Click="OnToggleObsoleteRun"
+                                            Background="Transparent" Foreground="{StaticResource BrandCyanBrush}" BorderThickness="0" FontSize="11" Cursor="Hand"/>
+                                </DockPanel>
+                                <ItemsControl x:Name="ObsoleteRunList" Visibility="Collapsed"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- ──── Toolbox Page (NEW) ──── -->
+                <ScrollViewer x:Name="PageToolbox" VerticalScrollBarVisibility="Auto" Padding="24" Visibility="Collapsed">
+                    <StackPanel>
+                        <!-- 1-Click Maintenance -->
+                        <Border Style="{StaticResource GlassPanel}" Margin="0,0,0,20">
+                            <StackPanel>
+                                <DockPanel Margin="0,0,0,12">
+                                    <TextBlock Text="🎯 1-CLICK MAINTENANCE" FontSize="14" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                    <Button DockPanel.Dock="Right" Content="▶ Run Full Maintenance" Style="{StaticResource ActionButton}" Click="OnOneClickOptimize" Background="#00C853" FontWeight="Bold"/>
+                                </DockPanel>
+                                <TextBlock x:Name="OneClickStatus" Text="Clean junk ─ fix registry ─ optimize startup ─ apply tweaks — all in one click" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                <Border x:Name="OneClickSummaryBar" Background="#1A1F2E" CornerRadius="8" Padding="12,8" Margin="0,12,0,0" Visibility="Collapsed">
+                                    <TextBlock x:Name="OneClickSummaryText" Text="" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource SuccessGreenBrush}"/>
+                                </Border>
+                                <ItemsControl x:Name="OneClickList" Margin="0,8,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Junk File Cleaner -->
+                        <Border Style="{StaticResource GlassPanel}" Margin="0,0,0,20">
+                            <StackPanel>
+                                <DockPanel Margin="0,0,0,12">
+                                    <TextBlock Text="🧹 JUNK FILE CLEANER" FontSize="14" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                                        <Button Content="🔍 Scan" Style="{StaticResource ActionButton}" Click="OnJunkScan" Margin="0,0,8,0"/>
+                                        <Button x:Name="BtnCleanJunk" Content="🧹 Clean Selected" Style="{StaticResource ActionButton}" Click="OnJunkClean"
+                                                Visibility="Collapsed" Background="#E53935"/>
+                                    </StackPanel>
+                                </DockPanel>
+                                <TextBlock x:Name="JunkStatus" Text="Scan for temp files, browser caches, logs, and more..." FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                <Border x:Name="JunkSummaryBar" Background="#1A1F2E" CornerRadius="8" Padding="12,8" Margin="0,12,0,0" Visibility="Collapsed">
+                                    <TextBlock x:Name="JunkSummaryText" Text="" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                </Border>
+                                <ItemsControl x:Name="JunkList" Margin="0,8,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Memory Optimizer -->
+                        <Border Style="{StaticResource GlassPanel}" Margin="0,0,0,20">
+                            <StackPanel>
+                                <DockPanel Margin="0,0,0,12">
+                                    <TextBlock Text="🧠 MEMORY OPTIMIZER" FontSize="14" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                    <Button DockPanel.Dock="Right" Content="💿 Virtual Memory" Style="{StaticResource ActionButton}" Click="OnVirtualMemoryOptimize" Background="#00897B" Margin="0,0,8,0"/>
+                                    <Button DockPanel.Dock="Right" Content="🧠 Optimize RAM" Style="{StaticResource ActionButton}" Click="OnMemoryOptimize" Background="#7C4DFF"/>
+                                </DockPanel>
+                                <TextBlock x:Name="MemOptStatus" Text="Free up RAM without killing processes..." FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                <Border x:Name="MemOptSummaryBar" Background="#1A1F2E" CornerRadius="8" Padding="12,8" Margin="0,12,0,0" Visibility="Collapsed">
+                                    <TextBlock x:Name="MemOptSummaryText" Text="" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource SuccessGreenBrush}"/>
+                                </Border>
+                                <ItemsControl x:Name="MemOptList" Margin="0,8,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Turbo Mode -->
+                        <Border Style="{StaticResource GlassPanel}" Margin="0,0,0,20">
+                            <StackPanel>
+                                <DockPanel Margin="0,0,0,12">
+                                    <TextBlock Text="🚀 TURBO MODE" FontSize="14" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                                        <Button x:Name="BtnTurboGaming" Content="🎮 Gaming" Style="{StaticResource ActionButton}" Click="OnTurboGaming" Margin="0,0,8,0" Background="#FF6F00"/>
+                                        <Button x:Name="BtnTurboWork" Content="💼 Work" Style="{StaticResource ActionButton}" Click="OnTurboWork" Margin="0,0,8,0"/>
+                                        <Button x:Name="BtnTurboBattery" Content="🔋 Battery" Style="{StaticResource ActionButton}" Click="OnTurboBattery" Margin="0,0,8,0"/>
+                                        <Button x:Name="BtnTurboOff" Content="⏹ Deactivate" Style="{StaticResource ActionButton}" Click="OnTurboDeactivate"
+                                                Visibility="Collapsed" Background="#E53935"/>
+                                    </StackPanel>
+                                </DockPanel>
+                                <TextBlock x:Name="TurboModeStatus" Text="Temporarily stop background processes for max performance" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                <Border x:Name="TurboSummaryBar" Background="#1A1F2E" CornerRadius="8" Padding="12,8" Margin="0,12,0,0" Visibility="Collapsed">
+                                    <TextBlock x:Name="TurboSummaryText" Text="" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource SuccessGreenBrush}"/>
+                                </Border>
+                                <ItemsControl x:Name="TurboActionList" Margin="0,8,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Disk Space Analyzer -->
+                        <Border Style="{StaticResource GlassPanel}" Margin="0,0,0,20">
+                            <StackPanel>
+                                <DockPanel Margin="0,0,0,12">
+                                    <TextBlock Text="📊 DISK SPACE ANALYZER" FontSize="14" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                    <Button DockPanel.Dock="Right" Content="📊 Analyze C:" Style="{StaticResource ActionButton}" Click="OnDiskSpaceAnalyze"/>
+                                </DockPanel>
+                                <TextBlock x:Name="DiskSpaceStatus" Text="Visual breakdown of disk usage by folder and file type" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                <Border x:Name="DiskSpaceSummaryBar" Background="#1A1F2E" CornerRadius="8" Padding="12,8" Margin="0,12,0,0" Visibility="Collapsed">
+                                    <TextBlock x:Name="DiskSpaceSummaryText" Text="" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                </Border>
+                                <ItemsControl x:Name="DiskSpaceList" Margin="0,8,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Duplicate File Finder -->
+                        <Border Style="{StaticResource GlassPanel}" Margin="0,0,0,20">
+                            <StackPanel>
+                                <DockPanel Margin="0,0,0,12">
+                                    <TextBlock Text="🔍 DUPLICATE FILE FINDER" FontSize="14" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                    <Button DockPanel.Dock="Right" Content="🔍 Find Duplicates" Style="{StaticResource ActionButton}" Click="OnDuplicateScan"/>
+                                </DockPanel>
+                                <TextBlock x:Name="DuplicateStatus" Text="Scan for duplicate files wasting disk space (SHA-256 hash)" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                <Border x:Name="DuplicateSummaryBar" Background="#1A1F2E" CornerRadius="8" Padding="12,8" Margin="0,12,0,0" Visibility="Collapsed">
+                                    <TextBlock x:Name="DuplicateSummaryText" Text="" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                </Border>
+                                <ItemsControl x:Name="DuplicateList" Margin="0,8,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- File Shredder -->
+                        <Border Style="{StaticResource GlassPanel}">
+                            <StackPanel>
+                                <DockPanel Margin="0,0,0,12">
+                                    <TextBlock Text="🗑 FILE SHREDDER" FontSize="14" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                    <Button DockPanel.Dock="Right" Content="🗑 Select Files to Shred" Style="{StaticResource ActionButton}" Click="OnFileShredder" Background="#D32F2F"/>
+                                </DockPanel>
+                                <TextBlock x:Name="ShredderStatus" Text="DoD 5220.22-M compliant secure file deletion — unrecoverable" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                <Border x:Name="ShredderSummaryBar" Background="#1A1F2E" CornerRadius="8" Padding="12,8" Margin="0,12,0,0" Visibility="Collapsed">
+                                    <TextBlock x:Name="ShredderSummaryText" Text="" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource SuccessGreenBrush}"/>
+                                </Border>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- ──── Settings Page ──── -->
+                <ScrollViewer x:Name="PageSettings" VerticalScrollBarVisibility="Auto" Padding="24" Visibility="Collapsed">
+                    <StackPanel>
+                        <Border Style="{StaticResource GlassPanel}">
+                            <StackPanel>
+                                <TextBlock Text="APPLICATION SETTINGS" FontSize="14" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,16"/>
+                                <TextBlock Text="LogicFlow v1.0.0 — by DelgadoLogic.Tech" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,8"/>
+                                <TextBlock x:Name="HwidLabel" Text="HWID: Loading..." FontSize="11" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,16" FontFamily="Consolas"/>
+                                <TextBlock Text="DATA PATHS" FontSize="11" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                <TextBlock x:Name="DataPathLabel" Text="..." FontSize="11" Foreground="{StaticResource TextSecondaryBrush}" FontFamily="Consolas"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- ═══ Global Loading Overlay ═══ -->
+                <Border x:Name="LoadingOverlay" Background="#CC0A0E1A" Visibility="Collapsed">
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <TextBlock x:Name="LoadingText" Text="Scanning..." FontSize="18" FontWeight="Bold"
+                                   Foreground="{StaticResource BrandCyanBrush}" HorizontalAlignment="Center"/>
+                        <ProgressBar IsIndeterminate="True" Width="200" Height="4" Margin="0,16,0,0"
+                                     Foreground="{StaticResource BrandCyanBrush}" Background="#1A1F2E"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Grid>
+    </Grid>
+
+</Window>

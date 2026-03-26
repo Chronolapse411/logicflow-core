@@ -1,0 +1,61 @@
+# LogicFlow - Production .gitignore
+# ─── Build outputs ────────────────────────────────────────────────────────────
+bin/
+obj/
+out/
+publish/
+dist/
+
+# ─── Visual Studio ────────────────────────────────────────────────────────────
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.rsuser
+*.userprefs
+
+# ─── Packages ─────────────────────────────────────────────────────────────────
+packages/
+*.nupkg
+*.snupkg
+project.lock.json
+project.fragment.lock.json
+
+# ─── Sovereign / signing keys (NEVER commit) ──────────────────────────────────
+*.pem
+*.pfx
+*.p12
+*.key
+*_private*
+sovereign-keys/
+
+# ─── Installer build artifacts ────────────────────────────────────────────────
+Installer/Output/
+Installer/*.exe
+Installer/*.msi
+*.iss.bak
+
+# ─── Firebase / GCP ───────────────────────────────────────────────────────────
+.firebase/
+firebase-debug.log
+.firebaserc
+
+# ─── Research / internal docs (stay private) ──────────────────────────────────
+Research/
+
+# ─── Windows system ───────────────────────────────────────────────────────────
+Thumbs.db
+desktop.ini
+*.lnk
+
+# ─── IDE / editors ────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ─── Test results ─────────────────────────────────────────────────────────────
+TestResults/
+*.trx
+coverage/

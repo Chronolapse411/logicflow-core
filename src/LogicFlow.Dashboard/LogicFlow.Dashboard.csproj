@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <RootNamespace>LogicFlow.Dashboard</RootNamespace>
+    <AssemblyName>LogicFlow</AssemblyName>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>..\..\Assets\Icons\LogicFlow.ico</ApplicationIcon>
+    <Description>LogicFlow Dashboard — AI-Powered Windows Optimization &amp; Data Recovery Suite</Description>
+    <Company>DelgadoLogic.Tech</Company>
+    <Product>LogicFlow</Product>
+    <Version>1.0.0</Version>
+    <FileVersion>1.0.0.0</FileVersion>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <Copyright>© 2026 DelgadoLogic.Tech. All rights reserved.</Copyright>
+    <Trademark>LogicFlow™ is a trademark of DelgadoLogic.Tech</Trademark>
+    <NeutralLanguage>en-US</NeutralLanguage>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\LogicFlow.Core\LogicFlow.Core.csproj" />
+    <ProjectReference Include="..\LogicFlow.Scraper\LogicFlow.Scraper.csproj" />
+    <ProjectReference Include="..\LogicFlow.Sentinel\LogicFlow.Sentinel.csproj" />
+    <ProjectReference Include="..\LogicFlow.Guardian\LogicFlow.Guardian.csproj" />
+    <ProjectReference Include="..\LogicFlow.Lazarus\LogicFlow.Lazarus.csproj" />
+    <ProjectReference Include="..\LogicFlow.Registry\LogicFlow.Registry.csproj" />
+    <ProjectReference Include="..\LogicFlow.Licensing\LogicFlow.Licensing.csproj" />
+    <ProjectReference Include="..\LogicFlow.Commerce\LogicFlow.Commerce.csproj" />
+    <ProjectReference Include="..\LogicFlow.Native\LogicFlow.Native.csproj" />
+    <ProjectReference Include="..\LogicFlow.Pulse\LogicFlow.Pulse.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="..\..\branding\AppIcon.jpg" Link="Assets\AppIcon.jpg" />
+    <Resource Include="..\..\branding\Banner_Header.jpg" Link="Assets\Banner_Header.jpg" />
+    <Resource Include="..\..\branding\Favicon.jpg" Link="Assets\Favicon.jpg" />
+  </ItemGroup>
+</Project>

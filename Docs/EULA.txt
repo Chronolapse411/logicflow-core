@@ -1,0 +1,122 @@
+END USER LICENSE AGREEMENT (EULA)
+LogicFlow — AI-Powered Windows Optimization & Data Recovery Suite
+Copyright (c) 2026 DelgadoLogic.Tech. All rights reserved.
+
+================================================================================
+
+IMPORTANT - READ CAREFULLY: This End User License Agreement ("Agreement") is a 
+legal agreement between you ("User") and DelgadoLogic.Tech ("Company") for the 
+use of LogicFlow software ("Software").
+
+BY INSTALLING, COPYING, OR OTHERWISE USING THE SOFTWARE, YOU AGREE TO BE BOUND 
+BY THE TERMS OF THIS AGREEMENT. IF YOU DO NOT AGREE, DO NOT INSTALL THE SOFTWARE.
+
+1. LICENSE GRANT
+   The Company grants you a non-exclusive, non-transferable, revocable license 
+   to install and use the Software on one (1) computer for personal or commercial 
+   use, subject to the terms of your subscription tier:
+   
+   - FREE TIER: Basic system profiling and limited scanning (5 scans/day)
+   - PRO ($9.99/mo or $79.99/yr): Full access to all modules
+   - FAMILY ($14.99/mo or $119.99/yr): Up to 5 devices
+
+2. RESTRICTIONS
+   You may NOT:
+   a) Reverse engineer, decompile, or disassemble the Software
+   b) Modify, adapt, or create derivative works based on the Software
+   c) Distribute, sublicense, lease, rent, or lend the Software
+   d) Remove any proprietary notices or labels on the Software
+   e) Use the Software to develop competing products
+   f) Circumvent any licensing restrictions or technical protection measures
+
+3. INTELLECTUAL PROPERTY
+   The Software, including all code, algorithms, designs, documentation, trade 
+   secrets, and associated materials, is the exclusive intellectual property of 
+   DelgadoLogic.Tech. This Agreement does not transfer ownership.
+
+4. SYSTEM ACCESS & PERMISSIONS
+   The Software requires Administrator privileges to perform system optimization, 
+   registry scanning, driver management, and data recovery operations. By 
+   installing, you authorize the Software to:
+   a) Access system registry (read/write for optimization)
+   b) Scan physical drives at the sector level
+   c) Enumerate and manage installed drivers
+   d) Monitor network services and firewall configuration
+   e) Install a background Windows service (LogicFlowAgent)
+   f) Create firewall rules for update connectivity
+   g) Access hardware identifiers for license binding (HWID)
+
+5. DATA COLLECTION & TELEMETRY
+   The Software collects the following anonymous, non-personal data:
+   a) Hardware fingerprint (CPU model, GPU model, motherboard identifier, disk 
+      type) for license binding — stored as a one-way hash (HWID)
+   b) Anonymous usage analytics (feature usage counts, performance timings) to 
+      improve the Software
+   c) Crash reports and error logs for stability improvements
+   d) First-install system baseline: a one-time snapshot of your system 
+      configuration captured during initial setup, including:
+      - BIOS manufacturer and firmware version
+      - Windows services list (names and run states)
+      - Hardware devices with driver problems (error codes only)
+      - Installed Windows updates (KB numbers)
+      - System stability history (crash/hang counts, no details)
+      - RAM configuration (slot count, capacity, speed, type)
+      - Storage controller models
+   
+   This baseline is used to seed the driver compatibility database, train AI 
+   optimization profiles, and track pre/post-optimization improvements.
+   
+   PRIVACY GUARANTEE:
+   The Software does NOT collect, transmit, or store: personal files, file or 
+   folder names, browsing history, passwords, usernames, email addresses, disk 
+   serial numbers, IP addresses, or any other personally identifiable 
+   information (PII). All data is transmitted over encrypted HTTPS connections.
+   
+   TELEMETRY OPT-OUT:
+   You may decline telemetry data collection during installation by unchecking 
+   the telemetry option during setup. You may also disable telemetry at any 
+   time via Settings > Privacy in the Software interface. Opting out does not 
+   affect Software functionality.
+
+6. BACKGROUND SERVICE
+   The LogicFlowAgent Windows service runs automatically at system startup to 
+   perform periodic health monitoring. The service consumes minimal resources 
+   and can be disabled via the Settings panel.
+
+7. LIMITED WARRANTY
+   THE SOFTWARE IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND. THE COMPANY 
+   DOES NOT WARRANT THAT THE SOFTWARE WILL BE ERROR-FREE OR UNINTERRUPTED.
+
+8. LIMITATION OF LIABILITY
+   IN NO EVENT SHALL THE COMPANY BE LIABLE FOR ANY INDIRECT, INCIDENTAL, 
+   SPECIAL, OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OF THE SOFTWARE. 
+   THE COMPANY'S TOTAL LIABILITY SHALL NOT EXCEED THE AMOUNT PAID BY YOU FOR 
+   THE SOFTWARE IN THE TWELVE (12) MONTHS PRECEDING THE CLAIM.
+
+9. DATA RECOVERY DISCLAIMER
+   Data recovery operations involve low-level disk access. While the Software 
+   is designed with safety mechanisms, the Company is not responsible for data 
+   loss resulting from recovery attempts. Always maintain backups.
+
+10. REGISTRY MODIFICATIONS
+    Registry repair operations create automatic backups before any modifications. 
+    The Company is not responsible for system instability resulting from registry 
+    changes that were explicitly authorized by the User.
+
+11. TERMINATION
+    This Agreement is effective until terminated. The Company may terminate your 
+    license if you breach any term. Upon termination, you must destroy all copies 
+    of the Software.
+
+12. GOVERNING LAW
+    This Agreement shall be governed by the laws of the United States of America, 
+    without regard to conflict of law principles.
+
+13. ENTIRE AGREEMENT
+    This Agreement constitutes the entire agreement between you and the Company 
+    regarding the Software and supersedes all prior agreements.
+
+================================================================================
+DelgadoLogic.Tech | https://delgadologic.tech | support@delgadologic.tech
+LogicFlow v1.0.0 | Build Date: March 2026
+================================================================================

@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>LogicFlow.Scraper</RootNamespace>
+    <AssemblyName>LogicFlow.Scraper</AssemblyName>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <Description>LogicFlow Research Scraper — automated intelligence gathering from Windows forums and GitHub</Description>
+    <Company>DelgadoLogic.Tech</Company>
+    <Product>LogicFlow</Product>
+    <Version>1.0.0</Version>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.72" />
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\LogicFlow.Core\LogicFlow.Core.csproj" />
+  </ItemGroup>
+</Project>
