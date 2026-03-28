@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <AssemblyName>DelgadoLogic.Core</AssemblyName>
+    <RootNamespace>DelgadoLogic.Core</RootNamespace>
+
+    <!-- NuGet Package Metadata -->
+    <PackageId>DelgadoLogic.Core</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>DelgadoLogic.Tech</Authors>
+    <Company>DelgadoLogic</Company>
+    <Description>Shared runtime for all DelgadoLogic products — licensing, identity, telemetry, and update engine.</Description>
+    <Copyright>Copyright © 2026 DelgadoLogic. All rights reserved.</Copyright>
+
+    <!-- Suppress WMI platform warnings (Windows-only by design) -->
+    <NoWarn>CA1416</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Management" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
+    <PackageReference Include="System.Net.Http.Json" Version="8.0.0" />
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
+  </ItemGroup>
+
+  <!-- Generate NuGet package during build — consumed by LogicFlow.Dashboard and future products -->
+  <PropertyGroup>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <RepositoryUrl>https://github.com/DelgadoLogic/logicflow-core</RepositoryUrl>
+    <PackageTags>delgadologic;shared-runtime;sovereign</PackageTags>
+  </PropertyGroup>
+
+</Project>

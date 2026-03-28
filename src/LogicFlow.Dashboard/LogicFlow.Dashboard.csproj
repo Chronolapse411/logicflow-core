@@ -31,6 +31,8 @@
     <ProjectReference Include="..\LogicFlow.Commerce\LogicFlow.Commerce.csproj" />
     <ProjectReference Include="..\LogicFlow.Native\LogicFlow.Native.csproj" />
     <ProjectReference Include="..\LogicFlow.Pulse\LogicFlow.Pulse.csproj" />
+    <!-- DelgadoLogic Shared Runtime — licensing, identity, telemetry, sovereign updates -->
+    <ProjectReference Include="..\DelgadoLogic.Core\DelgadoLogic.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="..\..\branding\AppIcon.jpg" Link="Assets\AppIcon.jpg" />
