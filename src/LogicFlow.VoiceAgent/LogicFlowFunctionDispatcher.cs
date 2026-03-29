@@ -157,15 +157,14 @@ public sealed class LogicFlowFunctionDispatcher
 
         try
         {
-            var result = await Task.Run(() => _junkCleaner.Clean(scope));
+            var result = await Task.Run(() => _junkCleaner.QuickClean());
             return new
             {
-                bytes_freed = result.BytesFreed,
-                gb_freed    = Math.Round(result.BytesFreed / 1_073_741_824.0, 2),
+                bytes_freed = result.BytesCleaned,
+                gb_freed    = Math.Round(result.BytesCleaned / 1_073_741_824.0, 2),
                 files_deleted = result.FilesDeleted,
-                duration_sec  = result.ElapsedSeconds,
-                summary = $"Cleaned {Math.Round(result.BytesFreed / 1_073_741_824.0, 1)} GB " +
-                          $"({result.FilesDeleted} files) in {result.ElapsedSeconds} seconds."
+                summary = $"Cleaned {Math.Round(result.BytesCleaned / 1_073_741_824.0, 1)} GB " +
+                          $"({result.FilesDeleted} files)."
             };
         }
         catch (Exception ex)
@@ -179,20 +178,20 @@ public sealed class LogicFlowFunctionDispatcher
     {
         try
         {
-            var info = await Task.Run(() => _systemInfo.GetSystemSnapshot());
+            var info = await Task.Run(() => _systemInfo.CollectSnapshot());
             return new
             {
                 cpu_name      = info.CpuName,
-                cpu_cores     = info.CoreCount,
-                cpu_load_pct  = info.CpuLoadPercent,
+                cpu_cores     = info.CpuCores,
+                cpu_load_pct  = info.CpuUsagePercent,
                 ram_total_gb  = Math.Round(info.TotalRamBytes / 1_073_741_824.0, 1),
-                ram_free_gb   = Math.Round(info.FreeRamBytes / 1_073_741_824.0, 1),
-                os_name       = info.OsCaption,
-                os_build      = info.OsBuildNumber,
-                uptime_hours  = Math.Round(info.UptimeSeconds / 3600.0, 1),
-                temperature_c = info.CpuTemperatureCelsius,
+                ram_free_gb   = Math.Round(info.AvailableRamBytes / 1_073_741_824.0, 1),
+                os_name       = info.OsName,
+                os_build      = info.OsBuild,
+                uptime_hours  = Math.Round(info.Uptime.TotalSeconds / 3600.0, 1),
+                temperature_c = info.CpuTempCelsius,
                 summary = $"{info.CpuName}, {Math.Round(info.TotalRamBytes / 1_073_741_824.0, 0)}GB RAM, " +
-                          $"{info.OsCaption}, up {Math.Round(info.UptimeSeconds / 3600.0, 0)} hours."
+                          $"{info.OsName}, up {Math.Round(info.Uptime.TotalSeconds / 3600.0, 0)} hours."
             };
         }
         catch (Exception ex)

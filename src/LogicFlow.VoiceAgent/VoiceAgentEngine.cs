@@ -18,6 +18,7 @@
 
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
+using DelgadoLogic.Core;
 
 namespace LogicFlow.VoiceAgent;
 
@@ -75,7 +76,7 @@ public sealed class VoiceAgentEngine : IAsyncDisposable
 
     // ── Start session ────────────────────────────────────────────────────
 
-    public async Task StartAsync(string licenseKey, string machineFingerprint, CancellationToken ct)
+    public async Task StartAsync(string licenseKey, string machineFingerprint, SystemContextPayload systemMetrics, CancellationToken ct)
     {
         if (State != VoiceAgentState.Idle)
         {
@@ -95,7 +96,9 @@ public sealed class VoiceAgentEngine : IAsyncDisposable
             return;
         }
 
-        // 2. Build Gemini Live setup with function declarations
+        // 2. Build Gemini Live setup with function declarations and system context
+        string systemPrompt = $"You are LogicFlow Guardian OS. Your system state is:\n{systemMetrics.ToJson()}";
+
         var setup = new LiveSetup
         {
             Setup = new LiveSetup.SetupBody
@@ -105,7 +108,7 @@ public sealed class VoiceAgentEngine : IAsyncDisposable
                 {
                     ThinkingConfig = new ThinkingConfig { ThinkingBudget = "low" },
                 },
-                SystemInstruction = new SystemInstruction(),
+                SystemInstruction = new SystemInstruction { Parts = [ new Part { Text = systemPrompt } ] },
                 Tools =
                 [
                     new ToolDeclaration

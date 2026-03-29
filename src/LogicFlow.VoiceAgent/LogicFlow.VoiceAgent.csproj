@@ -28,5 +28,6 @@
   <ItemGroup>
     <ProjectReference Include="..\LogicFlow.Core\LogicFlow.Core.csproj" />
     <ProjectReference Include="..\LogicFlow.Guardian\LogicFlow.Guardian.csproj" />
+    <ProjectReference Include="..\DelgadoLogic.Core\DelgadoLogic.Core.csproj" />
   </ItemGroup>
 </Project>

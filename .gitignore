@@ -45,3 +45,10 @@ functions/node_modules/
 Thumbs.db
 desktop.ini
 .DS_Store
+
+# Confidential documents - NEVER commit to public repos
+LOGICFLOW_MASTER_PLAN.md
+*MASTER_PLAN*
+*master_plan*
+*revenue_strategy*
+*_CONFIDENTIAL*
