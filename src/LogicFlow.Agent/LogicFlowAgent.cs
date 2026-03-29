@@ -27,6 +27,7 @@ public class Program
         builder.Services.AddSingleton<SmartDiskReader>();
         builder.Services.AddSingleton<SmartDriverEngine>();
         builder.Services.AddSingleton<StartupOptimizer>();
+        builder.Services.AddSingleton<AutoUpdateEngine>();
 
         var host = builder.Build();
         host.Run();
@@ -43,19 +44,24 @@ public sealed class HealthMonitorWorker : BackgroundService
     private readonly SmartDiskReader _smartReader;
     private readonly SmartDriverEngine _driverEngine;
     private readonly StartupOptimizer _startupOptimizer;
+    private readonly AutoUpdateEngine _updater;
     private readonly string _reportDir;
     private readonly TimeSpan _interval = TimeSpan.FromMinutes(30);
+    private readonly TimeSpan _updateInterval = TimeSpan.FromHours(24);
+    private DateTimeOffset _lastUpdateCheck = DateTimeOffset.MinValue;
 
     public HealthMonitorWorker(
         ILogger<HealthMonitorWorker> logger,
         SmartDiskReader smartReader,
         SmartDriverEngine driverEngine,
-        StartupOptimizer startupOptimizer)
+        StartupOptimizer startupOptimizer,
+        AutoUpdateEngine updater)
     {
         _logger = logger;
         _smartReader = smartReader;
         _driverEngine = driverEngine;
         _startupOptimizer = startupOptimizer;
+        _updater = updater;
         _reportDir = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "LogicFlow", "Reports");
@@ -65,6 +71,9 @@ public sealed class HealthMonitorWorker : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken ct)
     {
         _logger.LogInformation("LogicFlowAgent started. Scan interval: {Interval}", _interval);
+
+        // Check for updates immediately on startup, then every 24h
+        _ = Task.Run(() => CheckForUpdateAsync(ct), ct);
 
         while (!ct.IsCancellationRequested)
         {
@@ -76,6 +85,10 @@ public sealed class HealthMonitorWorker : BackgroundService
             {
                 _logger.LogError(ex, "Health check cycle failed");
             }
+
+            // Periodic update check (non-blocking, every 24h)
+            if (DateTimeOffset.UtcNow - _lastUpdateCheck > _updateInterval)
+                _ = Task.Run(() => CheckForUpdateAsync(ct), ct);
 
             await Task.Delay(_interval, ct);
         }
@@ -137,6 +150,21 @@ public sealed class HealthMonitorWorker : BackgroundService
 
         // Cleanup old reports (keep 7 days)
         CleanupOldReports();
+    }
+
+    private async Task CheckForUpdateAsync(CancellationToken ct)
+    {
+        _lastUpdateCheck = DateTimeOffset.UtcNow;
+        var result = await _updater.CheckForUpdateAsync(ct);
+        if (result is null) return;
+
+        if (result.UpdateAvailable)
+            _logger.LogWarning(
+                "[AutoUpdate] ⬆ Update available: {Latest} (current: {Current}). URL: {Url}",
+                result.LatestVersion, result.CurrentVersion, result.DownloadUrl);
+        else
+            _logger.LogInformation(
+                "[AutoUpdate] ✓ LogicFlow is up to date ({Version})", result.CurrentVersion);
     }
 
     private void CleanupOldReports()

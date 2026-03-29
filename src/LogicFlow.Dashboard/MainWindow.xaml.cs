@@ -44,6 +44,12 @@ public partial class MainWindow : Window
     private TrayIconManager? _trayManager;
     private UserSettings _settings = null!;
 
+    // ─── Resource Monitor ───
+    private readonly SystemInfoEngine _sysInfo = new();
+    private SystemInfoEngine.SystemSnapshot? _liveSnapshot;
+    private System.Windows.Threading.DispatcherTimer? _monitorTimer;
+    private bool _monitorRunning;
+
     // ─── Cached scan results for action handlers ───
     private VulnScanResult? _lastVulnResult;
     private List<Guardian.DriverReport>? _lastDriverResults;
@@ -65,7 +71,7 @@ public partial class MainWindow : Window
 
     private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
     {
-        _pages = [PageDashboard, PageSentinel, PageGuardian, PageToolbox, PageLazarus, PageRegistry, PageSettings];
+        _pages = [PageDashboard, PageSentinel, PageGuardian, PageMonitor, PageToolbox, PageLazarus, PageRegistry, PageSettings];
 
         // Populate system profile
         try
@@ -126,10 +132,187 @@ public partial class MainWindow : Window
     private void OnNavDashboard(object s, RoutedEventArgs e) => ShowPage(PageDashboard, "System Dashboard");
     private void OnNavSentinel(object s, RoutedEventArgs e) => ShowPage(PageSentinel, "Sentinel — Security Center");
     private void OnNavGuardian(object s, RoutedEventArgs e) => ShowPage(PageGuardian, "Guardian — Performance");
+    private void OnNavMonitor(object s, RoutedEventArgs e)
+    {
+        ShowPage(PageMonitor, "Resource Monitor — Live");
+        if (!_monitorRunning)
+            OnStartMonitor(s, new RoutedEventArgs());
+    }
     private void OnNavToolbox(object s, RoutedEventArgs e) => ShowPage(PageToolbox, "Toolbox — Utilities");
     private void OnNavLazarus(object s, RoutedEventArgs e) => ShowPage(PageLazarus, "Lazarus — Data Recovery");
     private void OnNavRegistry(object s, RoutedEventArgs e) => ShowPage(PageRegistry, "Registry Surgeon");
     private void OnNavSettings(object s, RoutedEventArgs e) => ShowPage(PageSettings, "Settings");
+
+    // ═══════════════════════════════════════════════════════════
+    //  RESOURCE MONITOR
+    // ═══════════════════════════════════════════════════════════
+    private async void OnStartMonitor(object s, RoutedEventArgs e)
+    {
+        if (_monitorRunning) return;
+
+        MonitorStatus.Text = "⏳ Initializing...";
+        BtnStartMonitor.IsEnabled = false;
+
+        // Collect the full snapshot (heavy WMI query) once on a background thread
+        _liveSnapshot = await Task.Run(() => _sysInfo.CollectSnapshot());
+
+        // Populate static fields from the snapshot
+        CpuNameText.Text = _liveSnapshot.CpuName;
+        CpuCoresText.Text = $"{_liveSnapshot.CpuCores} cores, {_liveSnapshot.CpuThreads} threads | {_liveSnapshot.CpuSpeedGHz:F1} GHz max";
+        MonitorCpuFullText.Text = _liveSnapshot.CpuName;
+        MonitorGpuText.Text = $"{_liveSnapshot.GpuName} ({_liveSnapshot.GpuVramFormatted} VRAM)";
+        OsDetailText.Text = _liveSnapshot.OsName;
+        IpText.Text = _liveSnapshot.IpAddress;
+        NetworkInfoText.Text = _liveSnapshot.NetworkSpeedMbps > 0
+            ? $"{_liveSnapshot.ActiveNetworkAdapter} ({_liveSnapshot.NetworkSpeedMbps} Mbps)"
+            : _liveSnapshot.ActiveNetworkAdapter;
+
+        // Build initial disk list
+        RebuildDiskList();
+
+        // Start 1-second timer
+        _monitorTimer = new System.Windows.Threading.DispatcherTimer
+        {
+            Interval = TimeSpan.FromSeconds(1)
+        };
+        _monitorTimer.Tick += OnMonitorTick;
+        _monitorTimer.Start();
+
+        _monitorRunning = true;
+        MonitorStatus.Text = "● Live";
+        MonitorStatus.Foreground = (Brush)FindResource("SuccessGreenBrush");
+        BtnStartMonitor.Visibility = Visibility.Collapsed;
+        BtnStopMonitor.Visibility = Visibility.Visible;
+    }
+
+    private void OnStopMonitor(object s, RoutedEventArgs e)
+    {
+        _monitorTimer?.Stop();
+        _monitorTimer = null;
+        _monitorRunning = false;
+        MonitorStatus.Text = "⏸ Paused";
+        MonitorStatus.Foreground = (Brush)FindResource("TextSecondaryBrush");
+        BtnStopMonitor.Visibility = Visibility.Collapsed;
+        BtnStartMonitor.IsEnabled = true;
+        BtnStartMonitor.Visibility = Visibility.Visible;
+    }
+
+    private void OnMonitorTick(object? sender, EventArgs e)
+    {
+        if (_liveSnapshot == null) return;
+        // Run lightweight update on background thread, push results back on UI thread
+        Task.Run(() => _sysInfo.UpdateLiveMetrics(_liveSnapshot))
+            .ContinueWith(_ => Dispatcher.Invoke(UpdateMonitorUI),
+                System.Threading.Tasks.TaskContinuationOptions.None);
+    }
+
+    private static Brush MetricBrush(double pct, ResourceDictionary res) => pct switch
+    {
+        > 80 => (Brush)res["DangerRedBrush"],
+        > 60 => (Brush)res["WarningAmberBrush"],
+        _    => (Brush)res["SuccessGreenBrush"]
+    };
+
+    private void UpdateMonitorUI()
+    {
+        if (_liveSnapshot == null) return;
+
+        // CPU
+        var cpuPct = _liveSnapshot.CpuUsagePercent;
+        CpuUsageBar.Value = cpuPct;
+        CpuUsageBar.Foreground = MetricBrush(cpuPct, Resources);
+        CpuUsageText.Text = cpuPct >= 0 ? $"{cpuPct:F0}%" : "N/A";
+        CpuUsageText.Foreground = MetricBrush(cpuPct, Resources);
+
+        // RAM
+        var ramPct = _liveSnapshot.RamUsagePercent;
+        RamUsageBar.Value = ramPct;
+        RamUsageBar.Foreground = MetricBrush(ramPct, Resources);
+        RamPctText.Text = $"{ramPct:F0}%";
+        RamPctText.Foreground = MetricBrush(ramPct, Resources);
+        RamUsageText.Text = $"{_liveSnapshot.UsedRamFormatted} / {_liveSnapshot.TotalRamFormatted} used";
+        RamAvailText.Text = $"{_liveSnapshot.AvailableRamFormatted} available";
+
+        // Uptime
+        UptimeText.Text = _liveSnapshot.UptimeFormatted;
+    }
+
+    private void RebuildDiskList()
+    {
+        if (_liveSnapshot == null) return;
+        MonitorDiskList.Items.Clear();
+        foreach (var disk in _liveSnapshot.Disks)
+        {
+            var pct = disk.UsagePercent;
+            var brush = MetricBrush(pct, Resources);
+            var freeGB = disk.FreeBytes / (1024.0 * 1024 * 1024);
+            var totalGB = disk.TotalBytes / (1024.0 * 1024 * 1024);
+
+            var card = new Border
+            {
+                CornerRadius = new System.Windows.CornerRadius(8),
+                Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(0x1A, 0x1A, 0x1F, 0x2E)),
+                Padding = new System.Windows.Thickness(12, 10, 12, 10),
+                Margin = new System.Windows.Thickness(0, 0, 0, 8)
+            };
+
+            var sp = new StackPanel();
+
+            // Row: drive letter + percent
+            var header = new System.Windows.Controls.Grid();
+            header.ColumnDefinitions.Add(new System.Windows.Controls.ColumnDefinition { Width = new System.Windows.GridLength(1, System.Windows.GridUnitType.Star) });
+            header.ColumnDefinitions.Add(new System.Windows.Controls.ColumnDefinition { Width = System.Windows.GridLength.Auto });
+
+            var driveName = new TextBlock
+            {
+                Text = string.IsNullOrWhiteSpace(disk.Label)
+                    ? $"{disk.Name}  —  {disk.FileSystem} ({disk.DriveType})"
+                    : $"{disk.Name} [{disk.Label}]  —  {disk.FileSystem}",
+                FontSize = 12,
+                FontWeight = FontWeights.SemiBold,
+                Foreground = (Brush)FindResource("TextPrimaryBrush")
+            };
+            System.Windows.Controls.Grid.SetColumn(driveName, 0);
+
+            var pctLabel = new TextBlock
+            {
+                Text = $"{pct:F1}% used",
+                FontSize = 12,
+                FontWeight = FontWeights.Bold,
+                Foreground = brush
+            };
+            System.Windows.Controls.Grid.SetColumn(pctLabel, 1);
+
+            header.Children.Add(driveName);
+            header.Children.Add(pctLabel);
+
+            var bar = new System.Windows.Controls.ProgressBar
+            {
+                Minimum = 0,
+                Maximum = 100,
+                Value = pct,
+                Height = 8,
+                Margin = new System.Windows.Thickness(0, 6, 0, 6),
+                Foreground = brush,
+                Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(0xFF, 0x1A, 0x1F, 0x2E))
+            };
+            bar.SetValue(System.Windows.Controls.Control.BackgroundProperty,
+                new SolidColorBrush(System.Windows.Media.Color.FromArgb(0xFF, 0x1A, 0x1F, 0x2E)));
+
+            var detail = new TextBlock
+            {
+                Text = $"{freeGB:F1} GB free of {totalGB:F1} GB total",
+                FontSize = 10,
+                Foreground = (Brush)FindResource("TextSecondaryBrush")
+            };
+
+            sp.Children.Add(header);
+            sp.Children.Add(bar);
+            sp.Children.Add(detail);
+            card.Child = sp;
+            MonitorDiskList.Items.Add(card);
+        }
+    }
 
     // ═══════════════════════════════════════════════════════════
     //  CLICKABLE SCORE CARDS → Navigate + Auto-Scan
@@ -1358,6 +1541,10 @@ public partial class MainWindow : Window
     {
         // Deactivate Turbo Mode if running
         try { _turboMode.Deactivate(); } catch { }
+
+        // Stop resource monitor timer
+        _monitorTimer?.Stop();
+        _monitorTimer = null;
 
         _settings.LastScanDate = DateTimeOffset.UtcNow;
         SettingsManager.Save();

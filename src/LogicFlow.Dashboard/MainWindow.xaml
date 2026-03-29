@@ -52,6 +52,7 @@
                     <Button x:Name="NavDashboard" Content="🏠  Dashboard" Style="{StaticResource NavButton}" Click="OnNavDashboard"/>
                     <Button x:Name="NavSentinel" Content="🛡  Sentinel — Security" Style="{StaticResource NavButton}" Click="OnNavSentinel"/>
                     <Button x:Name="NavGuardian" Content="⚡  Guardian — Performance" Style="{StaticResource NavButton}" Click="OnNavGuardian"/>
+                    <Button x:Name="NavMonitor" Content="📈  Resource Monitor" Style="{StaticResource NavButton}" Click="OnNavMonitor"/>
                     <Button x:Name="NavToolbox" Content="🧰  Toolbox — Utilities" Style="{StaticResource NavButton}" Click="OnNavToolbox"/>
                     <Button x:Name="NavLazarus" Content="🔄  Lazarus — Recovery" Style="{StaticResource NavButton}" Click="OnNavLazarus"/>
                     <Button x:Name="NavRegistry" Content="🔧  Registry Surgeon" Style="{StaticResource NavButton}" Click="OnNavRegistry"/>
@@ -464,6 +465,102 @@
                                 <ItemsControl x:Name="ObsoleteRunList" Visibility="Collapsed"/>
                             </StackPanel>
                         </Border>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- ──── Resource Monitor Page ──── -->
+                <ScrollViewer x:Name="PageMonitor" VerticalScrollBarVisibility="Auto" Padding="24" Visibility="Collapsed">
+                    <StackPanel>
+
+                        <!-- Header / Controls -->
+                        <Border Style="{StaticResource GlassPanel}" Margin="0,0,0,16">
+                            <DockPanel>
+                                <StackPanel>
+                                    <TextBlock Text="LIVE RESOURCE MONITOR" FontSize="14" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                    <TextBlock x:Name="MonitorStatus" Text="⏸ Stopped" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,0"/>
+                                </StackPanel>
+                                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Button x:Name="BtnStartMonitor" Content="▶ Start" Style="{StaticResource ActionButton}" Click="OnStartMonitor" Margin="0,0,8,0" Background="#00C853"/>
+                                    <Button x:Name="BtnStopMonitor" Content="⏹ Stop" Style="{StaticResource ActionButton}" Click="OnStopMonitor" Visibility="Collapsed" Background="#E53935"/>
+                                </StackPanel>
+                            </DockPanel>
+                        </Border>
+
+                        <!-- CPU + RAM Row -->
+                        <UniformGrid Columns="2" Margin="0,0,0,16">
+
+                            <!-- CPU -->
+                            <Border Style="{StaticResource GlassPanel}" Margin="0,0,8,0">
+                                <StackPanel>
+                                    <DockPanel Margin="0,0,0,10">
+                                        <TextBlock Text="CPU USAGE" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center"/>
+                                        <TextBlock x:Name="CpuUsageText" Text="—" FontSize="28" FontWeight="ExtraBold"
+                                                   Foreground="{StaticResource BrandCyanBrush}" DockPanel.Dock="Right" HorizontalAlignment="Right"/>
+                                    </DockPanel>
+                                    <ProgressBar x:Name="CpuUsageBar" Minimum="0" Maximum="100" Value="0"
+                                                 Height="10"
+                                                 Foreground="{StaticResource BrandCyanBrush}" Background="#1A1F2E"
+                                                 Margin="0,0,0,10"/>
+                                    <TextBlock x:Name="CpuCoresText" Text="— cores" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    <TextBlock x:Name="CpuNameText" Text="—" FontSize="10" Foreground="{StaticResource TextSecondaryBrush}" TextTrimming="CharacterEllipsis" Margin="0,2,0,0"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- RAM -->
+                            <Border Style="{StaticResource GlassPanel}" Margin="8,0,0,0">
+                                <StackPanel>
+                                    <DockPanel Margin="0,0,0,10">
+                                        <TextBlock Text="RAM USAGE" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center"/>
+                                        <TextBlock x:Name="RamPctText" Text="—" FontSize="28" FontWeight="ExtraBold"
+                                                   Foreground="{StaticResource BrandPurpleBrush}" DockPanel.Dock="Right" HorizontalAlignment="Right"/>
+                                    </DockPanel>
+                                    <ProgressBar x:Name="RamUsageBar" Minimum="0" Maximum="100" Value="0"
+                                                 Height="10"
+                                                 Foreground="{StaticResource BrandPurpleBrush}" Background="#1A1F2E"
+                                                 Margin="0,0,0,10"/>
+                                    <TextBlock x:Name="RamUsageText" Text="— / — GB" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                    <TextBlock x:Name="RamAvailText" Text="— available" FontSize="10" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,2,0,0"/>
+                                </StackPanel>
+                            </Border>
+                        </UniformGrid>
+
+                        <!-- Disk Usage -->
+                        <Border Style="{StaticResource GlassPanel}" Margin="0,0,0,16">
+                            <StackPanel>
+                                <TextBlock Text="DISK USAGE" FontSize="12" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,12"/>
+                                <ItemsControl x:Name="MonitorDiskList"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- System Info -->
+                        <Border Style="{StaticResource GlassPanel}">
+                            <StackPanel>
+                                <TextBlock Text="SYSTEM INFO" FontSize="12" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,12"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                                        <TextBlock Text="UPTIME" FontSize="9" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                        <TextBlock x:Name="UptimeText" Text="—" FontSize="12" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,10"/>
+                                        <TextBlock Text="IP ADDRESS" FontSize="9" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                        <TextBlock x:Name="IpText" Text="—" FontSize="12" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,10"/>
+                                        <TextBlock Text="NETWORK" FontSize="9" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                        <TextBlock x:Name="NetworkInfoText" Text="—" FontSize="12" Foreground="{StaticResource TextPrimaryBrush}" TextTrimming="CharacterEllipsis"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1">
+                                        <TextBlock Text="OPERATING SYSTEM" FontSize="9" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                        <TextBlock x:Name="OsDetailText" Text="—" FontSize="12" Foreground="{StaticResource TextPrimaryBrush}" TextTrimming="CharacterEllipsis" Margin="0,0,0,10"/>
+                                        <TextBlock Text="CPU" FontSize="9" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                        <TextBlock x:Name="MonitorCpuFullText" Text="—" FontSize="12" Foreground="{StaticResource TextPrimaryBrush}" TextTrimming="CharacterEllipsis" Margin="0,0,0,10"/>
+                                        <TextBlock Text="GPU" FontSize="9" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,2"/>
+                                        <TextBlock x:Name="MonitorGpuText" Text="—" FontSize="12" Foreground="{StaticResource TextPrimaryBrush}" TextTrimming="CharacterEllipsis"/>
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
                     </StackPanel>
                 </ScrollViewer>
 

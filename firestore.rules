@@ -1,0 +1,46 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Driver index — read-only for the app, write from admin/Cloud Functions only
+    match /driver_index/{document=**} {
+      allow read: if true;
+      allow write: if false; // Only Cloud Functions (admin SDK) can write
+    }
+
+    // Driver AI analyses — write from Cloud Functions only
+    match /driver_ai_analyses/{document=**} {
+      allow read: if false;
+      allow write: if false; // Only Cloud Functions (admin SDK)
+    }
+
+    // Driver crashes — Cloud Functions only
+    match /driver_crashes/{document=**} {
+      allow read: if false;
+      allow write: if false;
+    }
+
+    // Driver scan cache — app can read, Cloud Functions write
+    match /driver_scan_cache/{document=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Driver telemetry — crowd-sourced hardware/version data from Pulse
+    match /driver_telemetry/{document=**} {
+      allow read: if false;
+      allow write: if false; // Only Cloud Functions (admin SDK)
+    }
+
+    // Firmware telemetry — anonymous BIOS/UEFI version tracking
+    match /firmware_telemetry/{document=**} {
+      allow read: if false;
+      allow write: if false;
+    }
+
+    // Auto-suggested driver index entries — pending manual review
+    match /driver_index_suggestions/{document=**} {
+      allow read: if false;
+      allow write: if false;
+    }
+  }
+}

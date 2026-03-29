@@ -26,6 +26,21 @@ Installer/dist/
 *.pem
 license.private.json
 
+## Build output
+publish/
+dist/
+
+## Firebase
+.firebase/
+*.log
+
+## Node
+node_modules/
+functions/node_modules/
+
+## Agent config (local only)
+.agents/
+
 ## OS
 Thumbs.db
 desktop.ini

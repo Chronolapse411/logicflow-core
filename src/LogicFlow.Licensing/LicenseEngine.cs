@@ -35,20 +35,39 @@ public sealed class HwidGenerator
 
 public sealed class RsaLicenseValidator
 {
+    // ─── Sovereign RSA-2048 Public Key (DER, Base64) ─────────────────────────
+    // Generated 2026-03-27 by DelgadoLogic license key ceremony.
+    // Private key stored in Secret Manager:
+    //   projects/aeon-browser-build/secrets/logicflow-license-signing-key/versions/1
+    // Rotate by generating new pair, updating this constant, and re-shipping client.
+    private const string LicensePublicKeyB64 =
+        "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsr6VwJGHAi0VKWqFu6QQ" +
+        "C++AU6ENJDKBt3iIrxyTjt5kHUbvCGYUWpDG97QoKt+QA/mXEfXZRctGjzi5TZaX" +
+        "cteXcxtMTygqib5boIUAVbVIAdSQ5OXcXfWELzHFmifTXqX7QnmGvloWsNK+S8KW" +
+        "Q+CJ5dpH1XK2it9eGMzx0ZYln9J+sNHXwiprScs0gqUSAkCsp6dcey17WP9Gw7cm" +
+        "7Iph6trZHpowOymLMajq6tNaFdRiqbBfxo+cmD+ORPuN89AHo0oYOm+A0TCOio2e" +
+        "LFLpXdMzsXyyxAwoltSWOls/zqXAir4+UyOWHZGMSNLZHWwZSBRzK1ozE5yHdhdE" +
+        "0QIDAQAB";
+
     private readonly RSA _publicKey;
     private readonly ILogger<RsaLicenseValidator> _logger;
 
-    public RsaLicenseValidator(ILogger<RsaLicenseValidator> logger, string? publicKeyXml = null)
+    public RsaLicenseValidator(ILogger<RsaLicenseValidator> logger)
     {
         _logger = logger;
-        _publicKey = RSA.Create(2048);
-        if (publicKeyXml != null) _publicKey.FromXmlString(publicKeyXml);
+        _publicKey = RSA.Create();
+        // Load the pinned sovereign public key — no external dependency
+        _publicKey.ImportSubjectPublicKeyInfo(Convert.FromBase64String(LicensePublicKeyB64), out _);
     }
 
-    public static (string PublicKey, string PrivateKey) GenerateKeyPair()
+    /// <summary>For key ceremony use only — not used at runtime.</summary>
+    public static (string PublicKeyB64, string PrivateKeyB64) GenerateKeyPair()
     {
         using var rsa = RSA.Create(2048);
-        return (rsa.ToXmlString(false), rsa.ToXmlString(true));
+        return (
+            Convert.ToBase64String(rsa.ExportSubjectPublicKeyInfo()),
+            Convert.ToBase64String(rsa.ExportPkcs8PrivateKey())
+        );
     }
 
     public LicenseValidation Validate(LicenseToken token)
@@ -56,20 +75,42 @@ public sealed class RsaLicenseValidator
         try
         {
             var payloadBytes = Encoding.UTF8.GetBytes(token.Payload);
-            var sigBytes = Convert.FromBase64String(token.Signature);
+            var sigBytes     = Convert.FromBase64String(token.Signature);
+
             if (!_publicKey.VerifyData(payloadBytes, sigBytes, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1))
+            {
+                _logger.LogWarning("[License] Signature verification failed.");
                 return new(false, "Invalid signature", LicenseTier.Free);
+            }
 
             var claims = JsonSerializer.Deserialize<LicenseClaims>(token.Payload);
-            if (claims is null) return new(false, "Corrupt payload", LicenseTier.Free);
-            if (claims.ExpiresAt < DateTimeOffset.UtcNow) return new(false, "Expired", LicenseTier.Free);
+            if (claims is null)
+            {
+                _logger.LogWarning("[License] Payload deserialization failed.");
+                return new(false, "Corrupt payload", LicenseTier.Free);
+            }
+
+            if (claims.ExpiresAt < DateTimeOffset.UtcNow)
+            {
+                _logger.LogWarning("[License] License expired at {Expiry}", claims.ExpiresAt);
+                return new(false, "Expired", LicenseTier.Free);
+            }
 
             var hwid = new HwidGenerator().GenerateHwid();
-            if (claims.BoundHwid != hwid) return new(false, "HWID mismatch", LicenseTier.Free);
+            if (!string.Equals(claims.BoundHwid, hwid, StringComparison.Ordinal))
+            {
+                _logger.LogWarning("[License] HWID mismatch — license is bound to a different machine.");
+                return new(false, "HWID mismatch — contact support@delgadologic.tech", LicenseTier.Free);
+            }
 
+            _logger.LogInformation("[License] ✓ Valid license — Tier={Tier} Email={Email}", claims.Tier, claims.Email);
             return new(true, "Valid", claims.Tier);
         }
-        catch (Exception ex) { return new(false, ex.Message, LicenseTier.Free); }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[License] Unexpected validation error.");
+            return new(false, ex.Message, LicenseTier.Free);
+        }
     }
 }
 
@@ -88,34 +129,66 @@ public sealed class TrialManager
     public TrialStatus GetStatus()
     {
         if (!File.Exists(_trialFile)) return InitTrial();
-        var data = JsonSerializer.Deserialize<TrialData>(
-            Encoding.UTF8.GetString(Convert.FromBase64String(File.ReadAllText(_trialFile))));
-        if (data is null) return InitTrial();
-        var days = Math.Max(0, 14 - (int)(DateTimeOffset.UtcNow - data.StartedAt).TotalDays);
-        return new(days > 0, days, 14, data.BoundHwid != new HwidGenerator().GenerateHwid());
+
+        try
+        {
+            var json = Encoding.UTF8.GetString(Convert.FromBase64String(File.ReadAllText(_trialFile)));
+            var data = JsonSerializer.Deserialize<TrialData>(json);
+            if (data is null) return InitTrial();
+
+            var daysUsed      = (int)(DateTimeOffset.UtcNow - data.StartedAt).TotalDays;
+            var daysRemaining = Math.Max(0, 14 - daysUsed);
+            var tampered      = !string.Equals(data.BoundHwid, new HwidGenerator().GenerateHwid(), StringComparison.Ordinal);
+
+            if (tampered)
+                _logger.LogWarning("[Trial] HWID mismatch — trial file may have been moved.");
+
+            return new(daysRemaining > 0 && !tampered, daysRemaining, 14, tampered);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "[Trial] Corrupt trial file — resetting.");
+            return InitTrial();
+        }
     }
 
     private TrialStatus InitTrial()
     {
-        var data = new TrialData { StartedAt = DateTimeOffset.UtcNow, BoundHwid = new HwidGenerator().GenerateHwid() };
-        File.WriteAllText(_trialFile, Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(data))));
+        var data = new TrialData
+        {
+            StartedAt  = DateTimeOffset.UtcNow,
+            BoundHwid  = new HwidGenerator().GenerateHwid()
+        };
+        var encoded = Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(data)));
+        File.WriteAllText(_trialFile, encoded);
+        _logger.LogInformation("[Trial] New trial started — 14 days remaining.");
         return new(true, 14, 14, false);
     }
 }
 
+// ─── Models ───────────────────────────────────────────────────────────────────
+
 public sealed record LicenseToken(string Payload, string Signature);
 public sealed record LicenseValidation(bool IsValid, string Message, LicenseTier Tier);
+
 public sealed class LicenseClaims
 {
-    public string Email { get; set; } = "";
-    public string BoundHwid { get; set; } = "";
-    public LicenseTier Tier { get; set; }
-    public DateTimeOffset IssuedAt { get; set; }
-    public DateTimeOffset ExpiresAt { get; set; }
+    public string          Email      { get; set; } = "";
+    public string          BoundHwid  { get; set; } = "";
+    public LicenseTier     Tier       { get; set; }
+    public DateTimeOffset  IssuedAt   { get; set; }
+    public DateTimeOffset  ExpiresAt  { get; set; }
+    public string          OrderId    { get; set; } = "";
+    public int             SeatCount  { get; set; } = 1;
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum LicenseTier { Free, Pro, ProFamily, Enterprise }
 
 public sealed record TrialStatus(bool IsActive, int DaysRemaining, int TotalDays, bool IsTampered);
-internal sealed class TrialData { public DateTimeOffset StartedAt { get; set; } public string BoundHwid { get; set; } = ""; }
+
+internal sealed class TrialData
+{
+    public DateTimeOffset StartedAt { get; set; }
+    public string         BoundHwid { get; set; } = "";
+}

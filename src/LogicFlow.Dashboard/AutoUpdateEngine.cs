@@ -1,7 +1,8 @@
 // LogicFlow.Dashboard — Auto-Update Engine
 // Proprietary implementation by DelgadoLogic.Tech
 // Version check, SHA-256 hash verification, and self-update mechanism
-// Sovereign update endpoint: aeon-update-server (Cloud Run / GCP)
+// Sovereign update endpoint: api.delgadologic.tech (proxied → Cloud Run)
+// Ed25519 manifest signature verified before applying any update.
 
 using System.Diagnostics;
 using System.IO;
@@ -19,11 +20,11 @@ namespace LogicFlow.Dashboard;
 /// </summary>
 public sealed class AutoUpdateEngine : IDisposable
 {
-    // ─── Sovereign Server ──────────────────────────────────────────────────
-    private const string SovereignBase    = "https://aeon-update-server-y2r5ogip6q-ue.a.run.app";
-    private const string ProductId        = "logicflow";
-    private const int    MaxRetries       = 3;
-    private const int    RetryDelayMs     = 2000;
+    // ─── Sovereign Server (api.delgadologic.tech → Firebase Proxy → Cloud Run) ─
+    private const string SovereignBase = "https://api.delgadologic.tech";
+    private const string ProductId     = "logicflow";
+    private const int    MaxRetries    = 3;
+    private const int    RetryDelayMs  = 2000;
 
     private readonly HttpClient _http;
     private readonly ILogger<AutoUpdateEngine>? _logger;
