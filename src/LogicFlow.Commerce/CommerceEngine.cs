@@ -12,12 +12,13 @@ namespace LogicFlow.Commerce;
 /// <summary>
 /// Universal PayPal commerce service for all DelgadoLogic products.
 /// 
-/// LogicFlow Pro:     $29.99 one-time — pay once, own it forever.
-/// Aeon Pro Monthly:  $4.99/month subscription.
-/// Aeon Pro Annual:   $39.00/year subscription.
-/// Aeon Enterprise:   $15–$50/seat/month (custom quoting).
+/// LogicFlow Pro:        $29.99 one-time — 2 devices, lifetime sovereign updates.
+/// LogicFlow Family:     $49.99 one-time — 5 devices, lifetime sovereign updates.
+/// LogicFlow Enterprise: $79.99 one-time — 10 devices, seat add-ons, priority support.
+/// Enterprise Seat Addon: $9.99 one-time — add 1 extra seat to Enterprise license.
+/// Aeon Pro Monthly:     $4.99/month subscription.
+/// Aeon Pro Annual:      $39.00/year subscription.
 /// 
-/// Multi-PC discount handled via MULTIPC coupon code at checkout.
 /// 7-day refund guarantee on all purchases.
 /// New products are added by creating ProductInfo or SubscriptionPlan entries.
 /// </summary>
@@ -308,19 +309,55 @@ public sealed class CommerceEngine
     /// <summary>All purchasable products across the DelgadoLogic ecosystem.</summary>
     public static class Products
     {
-        // ── LogicFlow ──
+        // ── LogicFlow Pro ──
+        // $29.99 one-time for 2 devices (desktop + laptop).
+        // Undercuts every competitor's annual subscription model.
         public static readonly ProductInfo LogicFlowPro = new(
             Name: "LogicFlow Pro",
-            Description: "All 12 modules unlocked — lifetime sovereign updates, zero subscriptions. Windows 7 SP1 through Windows 11.",
+            Description: "All 12 modules unlocked — 2 devices, lifetime sovereign updates, zero subscriptions. Windows 7 SP1 through Windows 11.",
             Price: 29.99m,
             ReferencePrefix: "LF-PRO",
             ReturnUrl: "https://delgadologic.tech/success",
             CancelUrl: "https://delgadologic.tech/pricing"
         );
 
-        // ── Future products ──
-        // Add new ProductInfo entries here for any future DelgadoLogic products.
-        // The engine supports both one-time purchases and subscriptions generically.
+        // ── LogicFlow Family ──
+        // $49.99 one-time for 5 devices.
+        // ~$10/device — perfect for households.
+        // 67% premium over Pro but 2.5× the seats.
+        public static readonly ProductInfo LogicFlowFamily = new(
+            Name: "LogicFlow Family",
+            Description: "5-device license — all modules, lifetime sovereign updates, perfect for households. Windows 7 SP1 through Windows 11.",
+            Price: 49.99m,
+            ReferencePrefix: "LF-FAM",
+            ReturnUrl: "https://delgadologic.tech/success",
+            CancelUrl: "https://delgadologic.tech/pricing"
+        );
+
+        // ── LogicFlow Enterprise ──
+        // $79.99 one-time for 10 devices.
+        // ~$8/device — undercuts CCleaner Business ($20/PC/yr) and IObit ($17/yr/3PC).
+        // Includes expandable seat add-ons at $9.99/seat.
+        public static readonly ProductInfo LogicFlowEnterprise = new(
+            Name: "LogicFlow Enterprise",
+            Description: "10-device license — all modules, lifetime sovereign updates, Oracle Voice (3h/mo), priority support, expandable seats. Windows 7 SP1 through Windows 11.",
+            Price: 79.99m,
+            ReferencePrefix: "LF-ENT",
+            ReturnUrl: "https://delgadologic.tech/success",
+            CancelUrl: "https://delgadologic.tech/pricing"
+        );
+
+        // ── Enterprise Seat Add-on ──
+        // $9.99 per additional seat beyond the base 10.
+        // Enterprise-only. Each add-on purchase increases the license's seat count by 1.
+        public static readonly ProductInfo LogicFlowSeatAddon = new(
+            Name: "LogicFlow Enterprise — Extra Seat",
+            Description: "Add 1 additional device to your Enterprise license. Stacks with existing seats.",
+            Price: 9.99m,
+            ReferencePrefix: "LF-SEAT",
+            ReturnUrl: "https://delgadologic.tech/success",
+            CancelUrl: "https://delgadologic.tech/pricing"
+        );
     }
 
     /// <summary>Aeon Browser subscription plans (recurring billing).</summary>

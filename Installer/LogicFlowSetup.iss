@@ -41,8 +41,8 @@ ArchitecturesInstallIn64BitMode=x64compatible
 MinVersion=10.0
 DisableProgramGroupPage=yes
 SetupLogging=yes
-; Create a system restore point before installation (standard safety practice)
-RestorePointInConfig=yes
+; RestorePointInConfig is removed in Inno Setup 6.7+ — system restore points auto-handled by OS
+; RestorePointInConfig=yes
 VersionInfoVersion={#AppVersion}
 VersionInfoCompany={#AppPublisher}
 VersionInfoDescription=LogicFlow — AI-Powered Windows Optimization & Data Recovery Suite
@@ -61,8 +61,8 @@ Name: "custom"; Description: "Custom installation"; Flags: iscustom
 [Components]
 Name: "main";   Description: "LogicFlow Dashboard";                               Types: full compact custom; Flags: fixed
 Name: "agent";  Description: "LogicFlow Background Agent (Windows Service)";       Types: full
-Name: "native"; Description: "Native Kernel Drivers && Crypto Engine";           Types: full
-Name: "docs";   Description: "Documentation && API Reference";                   Types: full
+Name: "native"; Description: "Native Kernel Drivers & Crypto Engine";           Types: full
+Name: "docs";   Description: "Documentation & API Reference";                   Types: full
 Name: "aeon";   Description: "Aeon Browser by DelgadoLogic (recommended)";       Types: full; Flags: checkablealone
 
 [Tasks]
@@ -97,7 +97,9 @@ Source: "..\branding\*"; DestDir: "{app}\Assets\Branding"; Flags: ignoreversion
 
 ; ============================================================
 ; Aeon Browser — optional component (installed to separate dir)
+; Only included in installer if AeonBrowser has been published.
 ; ============================================================
+#ifexist "..\..\AeonBrowser\publish\Aeon.exe"
 ; Core browser executable
 Source: "..\..\AeonBrowser\publish\Aeon.exe";              DestDir: "{#AeonInstallDir}"; Components: aeon; Flags: ignoreversion
 ; Engine DLLs (tier-selected at install time)
@@ -105,13 +107,12 @@ Source: "..\..\AeonBrowser\publish\aeon_blink.dll";        DestDir: "{#AeonInsta
 Source: "..\..\AeonBrowser\publish\aeon_router.dll";       DestDir: "{#AeonInstallDir}"; Components: aeon; Flags: ignoreversion
 ; WolfSSL TLS DLL (legacy OS support)
 Source: "..\..\AeonBrowser\publish\wolfssl.dll";           DestDir: "{#AeonInstallDir}"; Components: aeon; Flags: ignoreversion
-; Rust router
-Source: "..\..\AeonBrowser\publish\aeon_router.dll";       DestDir: "{#AeonInstallDir}"; Components: aeon; Flags: ignoreversion
 ; Network components (Tor + i2pd)
 Source: "..\..\AeonBrowser\publish\network\*";            DestDir: "{#AeonInstallDir}\Network"; Components: aeon; Flags: ignoreversion recursesubdirs createallsubdirs
 ; Content block lists
 Source: "..\..\AeonBrowser\publish\blocklists\*";         DestDir: "{#AeonInstallDir}\blocklists"; Components: aeon; Flags: ignoreversion recursesubdirs
-; Aeon Icons
+#endif
+; Aeon Icons (always available from LogicFlow assets)
 Source: "..\Assets\Icons\Aeon.ico";                        DestDir: "{#AeonInstallDir}\Assets"; Components: aeon; Flags: ignoreversion
 
 [Icons]
@@ -226,6 +227,8 @@ begin
 end;
 
 procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
+var
+  ResultCode: Integer;
 begin
   if CurUninstallStep = usUninstall then
   begin
@@ -238,9 +241,9 @@ begin
     RegDeleteKeyIncludingSubkeys(HKEY_LOCAL_MACHINE, 'SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\Aeon.exe');
     RegDeleteKeyIncludingSubkeys(HKEY_LOCAL_MACHINE, 'SOFTWARE\Clients\StartMenuInternet\AeonBrowser');
     // Remove Aeon firewall rule
-    Exec('netsh.exe', 'advfirewall firewall delete rule name="Aeon Browser"', '', SW_HIDE, ewNoWait, 0);
+    Exec('netsh.exe', 'advfirewall firewall delete rule name="Aeon Browser"', '', SW_HIDE, ewNoWait, ResultCode);
     // Remove Aeon Defender exclusions
-    Exec('powershell.exe', '-NoProfile -Command Remove-MpPreference -ExclusionProcess ''Aeon.exe''', '', SW_HIDE, ewNoWait, 0);
+    Exec('powershell.exe', '-NoProfile -Command Remove-MpPreference -ExclusionProcess ''Aeon.exe''', '', SW_HIDE, ewNoWait, ResultCode);
     // NOTE: %APPDATA%\DelgadoLogic\Aeon is intentionally preserved (bookmarks, history, settings)
     // User must manually delete if they want to remove that data.
   end;

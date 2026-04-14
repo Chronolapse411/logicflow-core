@@ -77,6 +77,7 @@ if (-not $SkipInstaller) {
     Write-Host "`n[5/5] Compiling installer..." -ForegroundColor Yellow
     
     $iscc = @(
+        "$env:LOCALAPPDATA\Programs\Inno Setup 6\ISCC.exe",
         "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe",
         "${env:ProgramFiles}\Inno Setup 6\ISCC.exe",
         "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"

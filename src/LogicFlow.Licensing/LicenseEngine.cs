@@ -36,18 +36,18 @@ public sealed class HwidGenerator
 public sealed class RsaLicenseValidator
 {
     // ─── Sovereign RSA-2048 Public Key (DER, Base64) ─────────────────────────
-    // Generated 2026-03-27 by DelgadoLogic license key ceremony.
+    // Generated 2026-03-29 by DelgadoLogic license key ceremony.
     // Private key stored in Secret Manager:
-    //   projects/aeon-browser-build/secrets/logicflow-license-signing-key/versions/1
+    //   projects/manuel-portfolio-2026/secrets/logicflow-license-signing-key/versions/1
     // Rotate by generating new pair, updating this constant, and re-shipping client.
     private const string LicensePublicKeyB64 =
-        "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsr6VwJGHAi0VKWqFu6QQ" +
-        "C++AU6ENJDKBt3iIrxyTjt5kHUbvCGYUWpDG97QoKt+QA/mXEfXZRctGjzi5TZaX" +
-        "cteXcxtMTygqib5boIUAVbVIAdSQ5OXcXfWELzHFmifTXqX7QnmGvloWsNK+S8KW" +
-        "Q+CJ5dpH1XK2it9eGMzx0ZYln9J+sNHXwiprScs0gqUSAkCsp6dcey17WP9Gw7cm" +
-        "7Iph6trZHpowOymLMajq6tNaFdRiqbBfxo+cmD+ORPuN89AHo0oYOm+A0TCOio2e" +
-        "LFLpXdMzsXyyxAwoltSWOls/zqXAir4+UyOWHZGMSNLZHWwZSBRzK1ozE5yHdhdE" +
-        "0QIDAQAB";
+        "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnKY2d5db/2/UsERcEKMH" +
+        "FdMYMUj7msbr7tcbxxi8pZ/S/0ghaI5zgFjxvzx+a+y+H+L5tbQQQA5QG7B0F32J" +
+        "1o/ynVgPc8E1S9PtwvvD3cUFvVn0cRTvR6pu3jup76uhy/t3gHit+bzxFcdMfmRV" +
+        "hSuPXWO+qPzXm599++sgG8tr7eJwaFUVLNfri9G5G61ZWJR2zNZnTbQYryoKVhJO" +
+        "UJfvPdyLmRiABzlqs/D3U0KmlwsnZ3tJWmZbOPE12k1WFVrISUGZ/EQje+z5QWd+" +
+        "l8oO/lZ35YpbuLbFxvd3+4msMuKmXx03L8q/SsOy2E/JkefcpJdd09EgYM7IpDnR" +
+        "LQIDAQAB";
 
     private readonly RSA _publicKey;
     private readonly ILogger<RsaLicenseValidator> _logger;
@@ -183,7 +183,41 @@ public sealed class LicenseClaims
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
-public enum LicenseTier { Free, Pro, ProFamily, Enterprise }
+public enum LicenseTier { Free, Pro, Family, Enterprise }
+
+/// <summary>
+/// Maps each license tier to its maximum concurrent device (seat) count.
+/// Used by the account-based license system to enforce device limits.
+/// </summary>
+public static class LicenseTierExtensions
+{
+    public static int MaxSeats(this LicenseTier tier) => tier switch
+    {
+        LicenseTier.Free       => 1,
+        LicenseTier.Pro        => 2,   // Desktop + laptop
+        LicenseTier.Family     => 5,   // Household
+        LicenseTier.Enterprise => 10,  // Small business (expandable via seat add-ons)
+        _                      => 1
+    };
+
+    public static string DisplayName(this LicenseTier tier) => tier switch
+    {
+        LicenseTier.Free       => "Free Edition",
+        LicenseTier.Pro        => "Pro License",
+        LicenseTier.Family     => "Family License",
+        LicenseTier.Enterprise => "Enterprise License",
+        _                      => "Unknown"
+    };
+
+    public static decimal Price(this LicenseTier tier) => tier switch
+    {
+        LicenseTier.Free       => 0m,
+        LicenseTier.Pro        => 29.99m,
+        LicenseTier.Family     => 49.99m,
+        LicenseTier.Enterprise => 79.99m,
+        _                      => 0m
+    };
+}
 
 public sealed record TrialStatus(bool IsActive, int DaysRemaining, int TotalDays, bool IsTampered);
 
